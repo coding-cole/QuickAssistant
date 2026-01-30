@@ -1,12 +1,12 @@
 export const palette = {
-  // Primary colors
+  // Primary colors (QuickAssistant Blue)
   primary100: '#E3F2FD',
   primary200: '#90CAF9',
   primary300: '#64B5F6',
   primary400: '#42A5F5',
-  primary500: '#2196F3',
-  primary600: '#1E88E5',
-  primary700: '#1976D2',
+  primary500: '#00A3E0', // Bright Blue - CTAs, active states
+  primary600: '#2E75B5', // Deep Blue - headers
+  primary700: '#1A5490', // Dark Blue - logo
 
   // Neutral colors
   white: '#FFFFFF',
@@ -27,6 +27,19 @@ export const palette = {
   warning: '#FF9800',
   error: '#F44336',
   info: '#2196F3',
+
+  // Badge colors
+  badgeRecommended: '#00A3E0',
+  badgeCheapest: '#4CAF50',
+  badgeFastest: '#FF9800',
+  badgeCompleted: '#4CAF50',
+  badgeScheduled: '#00A3E0',
+  badgeCancelled: '#F44336',
+
+  // Transport provider colors
+  boltGreen: '#34D186',
+  uberBlack: '#000000',
+  inDriveOrange: '#FF6B00',
 
   // Transparent
   transparent: 'transparent',
@@ -56,8 +69,8 @@ export const lightColors: ThemeColors = {
   primary: palette.primary500,
   primaryLight: palette.primary300,
   primaryDark: palette.primary700,
-  secondary: palette.gray700,
-  background: palette.gray50,
+  secondary: palette.primary600,
+  background: palette.white,
   surface: palette.white,
   card: palette.white,
   text: palette.gray900,

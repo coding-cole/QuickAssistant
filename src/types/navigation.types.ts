@@ -1,6 +1,7 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { CompositeScreenProps } from '@react-navigation/native';
 
 // Auth Stack
 export type AuthStackParamList = {
@@ -9,9 +10,20 @@ export type AuthStackParamList = {
   ForgotPassword: { email?: string };
 };
 
+// Home Stack (screens accessible from Home tab)
+export type HomeStackParamList = {
+  HomeMain: undefined;
+  Chat: { initialQuery?: string };
+  PriceComparison: { origin?: string; destination?: string };
+  Notifications: undefined;
+  Calendar: { selectedDate?: string }; // ISO date string
+};
+
 // Main Tab Navigator
 export type MainTabParamList = {
-  Home: undefined;
+  Home: NavigatorScreenParams<HomeStackParamList>;
+  Map: undefined;
+  RideHistory: undefined;
   Profile: undefined;
 };
 
@@ -25,6 +37,11 @@ export type RootStackParamList = {
 export type AuthStackScreenProps<T extends keyof AuthStackParamList> = NativeStackScreenProps<
   AuthStackParamList,
   T
+>;
+
+export type HomeStackScreenProps<T extends keyof HomeStackParamList> = CompositeScreenProps<
+  NativeStackScreenProps<HomeStackParamList, T>,
+  BottomTabScreenProps<MainTabParamList>
 >;
 
 export type MainTabScreenProps<T extends keyof MainTabParamList> = BottomTabScreenProps<

@@ -35,6 +35,14 @@ src/
 
 ## Adding New Features
 
+## Trip Estimation Routing
+
+Ride estimation questions are classified by Groq and forwarded to the trip estimation endpoint (configured with `TRIP_ESTIMATION_URL` in `.env`):
+
+- `https://container-oxide-systematic-victoria.trycloudflare.com/process/sendTrip`
+
+The client sends `{ message, origin, destination }` and renders any ride options returned by the API.
+
 ### Adding a New Screen
 
 1. Create the screen file in `src/screens/[Category]/`:
