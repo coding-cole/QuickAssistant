@@ -207,7 +207,7 @@ const ChatScreen: React.FC = () => {
 
       return (
         <View>
-          <ChatMessage message={item} showTimestamp />
+          {item.text.trim() !== '' && <ChatMessage message={item} showTimestamp />}
           {item.transportOptions && (
             <View style={styles.transportOptionsContainer}>
               {item.transportOptions.map((option, index) => (
