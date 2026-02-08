@@ -74,7 +74,7 @@ const server = http.createServer((req, res) => {
     delete headers['origin'];
     delete headers['referer'];
 
-    console.log(`[Proxy] Forwarding headers:`, Object.keys(headers));
+  console.log(`[Proxy] Forwarding headers:`, Object.keys(headers));
 
     const options = {
       hostname: target.hostname,
@@ -114,6 +114,6 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`[Proxy] CORS proxy server running at http://localhost:${PORT}`);
-  console.log(`[Proxy] Usage: http://localhost:${PORT}?url=<encoded-target-url>`);
+  console.warn(`[Proxy] CORS proxy server running at http://localhost:${PORT}`);
+  console.warn(`[Proxy] Usage: http://localhost:${PORT}?url=<encoded-target-url>`);
 });

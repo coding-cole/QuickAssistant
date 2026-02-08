@@ -45,9 +45,13 @@ const authSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
-    restoreToken: (state, action: PayloadAction<string | null>) => {
-      state.accessToken = action.payload;
-      state.isLoading = false;
+    restoreToken: (
+      state,
+      action: PayloadAction<{ accessToken: string | null; refreshToken: string | null }>
+    ) => {
+      state.accessToken = action.payload.accessToken;
+      state.refreshToken = action.payload.refreshToken;
+      state.isLoading = !!action.payload.accessToken;
     },
   },
   extraReducers: (builder) => {

@@ -1,5 +1,13 @@
 import React, { useMemo, useState, useRef, useCallback, useEffect } from 'react';
-import { View, StyleSheet, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Animated,
+  Easing,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme, Theme } from '@theme';
@@ -29,6 +37,9 @@ const ChatScreen: React.FC = () => {
   const [messages, setMessages] = useState<ExtendedMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const flatListRef = useRef<FlatList>(null);
+  const dot1 = useRef(new Animated.Value(0.3)).current;
+  const dot2 = useRef(new Animated.Value(0.3)).current;
+  const dot3 = useRef(new Animated.Value(0.3)).current;
 
   const { initialQuery } = route.params || {};
 
@@ -36,6 +47,42 @@ const ChatScreen: React.FC = () => {
   useEffect(() => {
     setMessages([getWelcomeMessage()]);
   }, []);
+
+  useEffect(() => {
+    if (!isTyping) {
+      dot1.setValue(0.3);
+      dot2.setValue(0.3);
+      dot3.setValue(0.3);
+      return;
+    }
+
+    const createPulse = (dot: Animated.Value, delay: number) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(dot, {
+            toValue: 1,
+            duration: 400,
+            delay,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(dot, {
+            toValue: 0.3,
+            duration: 400,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ])
+      );
+
+    const animations = [createPulse(dot1, 0), createPulse(dot2, 150), createPulse(dot3, 300)];
+
+    animations.forEach((animation) => animation.start());
+
+    return () => {
+      animations.forEach((animation) => animation.stop());
+    };
+  }, [isTyping, dot1, dot2, dot3]);
 
   // Handle initial query from navigation
   useEffect(() => {
@@ -80,7 +127,7 @@ const ChatScreen: React.FC = () => {
           addMessage(aiMessage);
 
           // Debug logging
-          console.warn('AI Response:', {
+          console.log('AI Response:', {
             hasMetadata: !!response.metadata,
             hasTransportOptions: response.metadata?.hasTransportOptions,
             transportOptionsCount: response.metadata?.transportOptions?.length,
@@ -88,7 +135,8 @@ const ChatScreen: React.FC = () => {
 
           // If AI provided transport options in metadata, show them
           if (response.metadata?.hasTransportOptions && response.metadata?.transportOptions) {
-            console.warn('Showing transport options:', response.metadata.transportOptions.length);
+            console.log('Showing transport options:', response.metadata.transportOptions.length);
+            console.log('[ChatScreen] Transport options data:', response.metadata.transportOptions);
             setTimeout(() => {
               addMessage({
                 id: `ai-options-${Date.now()}`,
@@ -103,7 +151,10 @@ const ChatScreen: React.FC = () => {
           // Error response
           addMessage({
             id: `ai-error-${Date.now()}`,
-            text: response.error || "I'm having trouble connecting. Please try again.",
+            text:
+              response.message ||
+              response.error ||
+              "I'm having trouble connecting. Please try again.",
             isUser: false,
             timestamp: new Date(),
           });
@@ -148,7 +199,7 @@ const ChatScreen: React.FC = () => {
 
   const renderMessage = useCallback(
     ({ item }: { item: ExtendedMessage }) => {
-      console.warn('[ChatScreen] Rendering message:', {
+      console.log('[ChatScreen] Rendering message:', {
         id: item.id,
         hasTransportOptions: !!item.transportOptions,
         transportCount: item.transportOptions?.length,
@@ -165,6 +216,7 @@ const ChatScreen: React.FC = () => {
                   provider={option.provider}
                   price={option.price}
                   eta={option.eta}
+                  seats={option.seats}
                   badge={option.badge}
                   onBookPress={() => handleBookPress(option)}
                 />
@@ -199,9 +251,11 @@ const ChatScreen: React.FC = () => {
             isTyping ? (
               <View style={styles.typingIndicator}>
                 <View style={styles.typingDots}>
-                  <View style={styles.typingDot} />
-                  <View style={[styles.typingDot, styles.typingDotMiddle]} />
-                  <View style={styles.typingDot} />
+                  <Animated.View style={[styles.typingDot, { opacity: dot1 }]} />
+                  <Animated.View
+                    style={[styles.typingDot, styles.typingDotMiddle, { opacity: dot2 }]}
+                  />
+                  <Animated.View style={[styles.typingDot, { opacity: dot3 }]} />
                 </View>
               </View>
             ) : null

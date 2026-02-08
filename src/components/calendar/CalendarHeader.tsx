@@ -13,7 +13,7 @@ interface CalendarHeaderProps {
   onPrevious: () => void;
   onNext: () => void;
   onToday: () => void;
-  onViewModeChange: (mode: ViewMode) => void;
+  onViewModeChange: (_mode: ViewMode) => void;
   style?: StyleProp<ViewStyle>;
 }
 

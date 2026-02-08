@@ -40,6 +40,15 @@ class TripEstimationService {
         messageToAI: message,
       });
 
+      if (typeof response.httpStatus === 'number' && response.httpStatus !== 200) {
+        const fallbackMessage = `Trip estimation failed (${response.httpStatus}). Please try again.`;
+        return {
+          success: false,
+          message: fallbackMessage,
+          error: response.message || `Trip estimation error (${response.httpStatus})`,
+        };
+      }
+
       const responseMessage = response.message || 'No response received';
 
       // Parse transport options from the markdown response

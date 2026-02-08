@@ -7,6 +7,7 @@ import { useAppSelector, useAppDispatch, setLoading } from '@state';
 import { selectIsAuthenticated, selectAuthLoading } from '@state/selectors/authSelectors';
 import { storageService } from '@services/storage';
 import { restoreToken } from '@state/slices/authSlice';
+import { useLazyGetMeQuery } from '@api/authApi';
 
 import { AuthNavigator } from './AuthNavigator';
 import { MainNavigator } from './MainNavigator';
@@ -19,12 +20,25 @@ export const AppNavigator: React.FC = () => {
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isLoading = useAppSelector(selectAuthLoading);
+  const [triggerGetMe] = useLazyGetMeQuery();
 
   useEffect(() => {
     const bootstrapAsync = async () => {
       try {
-        const token = await storageService.getAuthToken();
-        dispatch(restoreToken(token));
+        const [token, refreshToken] = await Promise.all([
+          storageService.getAuthToken(),
+          storageService.getRefreshToken(),
+        ]);
+
+        dispatch(restoreToken({ accessToken: token, refreshToken }));
+
+        if (token) {
+          try {
+            await triggerGetMe().unwrap();
+          } catch {
+            await storageService.clearAuthData();
+          }
+        }
       } catch {
         dispatch(setLoading(false));
       }

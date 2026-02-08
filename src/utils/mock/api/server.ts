@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global Request, RequestInit, Response, fetch */
 import { API_BASE_URL } from '@config/env';
 import {
   loginMockedResponse,
@@ -49,7 +49,7 @@ export function enableMocking(): void {
       init?.method?.toUpperCase() ||
       (typeof input !== 'string' && input.method ? input.method.toUpperCase() : 'GET');
 
-    console.warn(`[Mock] Intercepted: ${method} ${url}`);
+    console.log(`[Mock] Intercepted: ${method} ${url}`);
 
     // Check if this request matches a mock route
     for (const route of mockRoutes) {
@@ -67,10 +67,10 @@ export function enableMocking(): void {
       }
     }
 
-    console.warn(`[Mock] No match, passing through to original fetch`);
+    console.log(`[Mock] No match, passing through to original fetch`);
     // Pass through to original fetch for non-mocked requests
     return originalFetch(input, init);
   }) as typeof fetch;
 
-  console.warn('[Mock] API mocking enabled for development');
+  console.log('[Mock] API mocking enabled for development');
 }

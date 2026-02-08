@@ -48,18 +48,21 @@ export const mockTransportOptions: TransportOption[] = [
     provider: createProvider('bolt'),
     price: 3200,
     eta: 35,
+    seats: 4,
     badge: 'recommended',
   },
   {
     provider: createProvider('indrive'),
     price: 2800,
     eta: 35,
+    seats: 4,
     badge: 'cheapest',
   },
   {
     provider: createProvider('uber'),
     price: 3500,
     eta: 30,
+    seats: 4,
     badge: 'fastest',
   },
 ];

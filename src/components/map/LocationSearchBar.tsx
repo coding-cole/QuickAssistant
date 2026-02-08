@@ -5,7 +5,7 @@ import { useTheme, Theme } from '@theme';
 
 interface LocationSearchBarProps {
   value: string;
-  onChangeText: (text: string) => void;
+  onChangeText: (_text: string) => void;
   onFocus?: () => void;
   onClear?: () => void;
   placeholder?: string;

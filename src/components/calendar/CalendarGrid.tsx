@@ -28,7 +28,7 @@ interface CalendarGridProps {
   selectedDate: Date;
   events: CalendarEvent[];
   viewMode: ViewMode;
-  onDateSelect: (date: Date) => void;
+  onDateSelect: (_date: Date) => void;
   style?: StyleProp<ViewStyle>;
 }
 

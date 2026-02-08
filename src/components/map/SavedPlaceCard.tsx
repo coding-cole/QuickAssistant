@@ -66,7 +66,7 @@ export const SavedPlaceCard: React.FC<SavedPlaceCardProps> = ({
   );
 };
 
-const createStyles = (theme: Theme, compact: boolean) =>
+const createStyles = (theme: Theme, _compact: boolean) =>
   StyleSheet.create({
     container: {
       flexDirection: 'row',

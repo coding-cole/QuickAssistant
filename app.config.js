@@ -36,6 +36,7 @@ export default {
         process.env.TRIP_ESTIMATION_URL ||
         'https://quantitative-extraordinary-permanent-choose.trycloudflare.com/process/sendTrip',
       tripEstimationToken: process.env.TRIP_ESTIMATION_TOKEN || '',
+      tripEstimationMockEnabled: process.env.TRIP_ESTIMATION_MOCK_ENABLED === 'true',
     },
   },
 };

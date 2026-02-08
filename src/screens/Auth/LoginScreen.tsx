@@ -16,6 +16,7 @@ import type { AuthStackScreenProps } from '@app-types/navigation.types';
 import { useTheme, Theme } from '@theme';
 import { useLoginMutation } from '@api/authApi';
 import { Button, Input, Typography } from '@components/common';
+import { getApiErrorMessage } from '@utils/apiErrors';
 import { AuthHeader } from '@components/headers';
 
 const loginSchema = yup.object({
@@ -64,11 +65,7 @@ const LoginScreen: React.FC = () => {
     navigation.navigate('Register');
   };
 
-  const errorMessage = error
-    ? 'data' in error
-      ? (error.data as any)?.message
-      : 'Login failed'
-    : null;
+  const errorMessage = getApiErrorMessage(error, 'Login failed');
 
   return (
     <SafeAreaView style={styles.container}>

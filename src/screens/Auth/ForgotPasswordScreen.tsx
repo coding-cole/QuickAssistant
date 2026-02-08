@@ -11,6 +11,7 @@ import { useForgotPasswordMutation } from '@api/authApi';
 import { Button, Input, Typography } from '@components/common';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthHeader } from '@components/headers';
+import { getApiErrorMessage } from '@utils/apiErrors';
 
 const forgotPasswordSchema = yup.object({
   email: yup.string().email('Invalid email address').required('Email is required'),
@@ -54,11 +55,7 @@ const ForgotPasswordScreen: React.FC = () => {
     navigation.navigate('Login');
   };
 
-  const errorMessage = error
-    ? 'data' in error
-      ? (error.data as any)?.message
-      : 'Failed to send reset email'
-    : null;
+  const errorMessage = getApiErrorMessage(error, 'Failed to send reset email');
 
   if (isSuccess) {
     return (

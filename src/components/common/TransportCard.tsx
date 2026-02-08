@@ -11,7 +11,6 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, Theme } from '@theme';
 import { Typography } from './Typography';
-import { Button } from './Button';
 import { Badge, BadgeVariant } from './Badge';
 
 export interface TransportProvider {
@@ -24,6 +23,7 @@ export interface TransportOption {
   provider: TransportProvider;
   price: number;
   eta: number;
+  seats: number;
   badge?: BadgeVariant | null;
 }
 
@@ -31,6 +31,7 @@ interface TransportCardProps {
   provider: TransportProvider;
   price: number;
   eta: number;
+  seats: number;
   badge?: BadgeVariant | null;
   onBookPress: () => void;
   style?: StyleProp<ViewStyle>;
@@ -54,6 +55,7 @@ export const TransportCard: React.FC<TransportCardProps> = ({
   provider,
   price,
   eta,
+  seats,
   badge,
   onBookPress,
   style,
@@ -79,6 +81,14 @@ export const TransportCard: React.FC<TransportCardProps> = ({
                 ETA: {formatETA(eta)}
               </Typography>
             </View>
+            {typeof seats === 'number' && (
+              <View style={styles.seatsContainer}>
+                <Ionicons name="people-outline" size={14} color={theme.colors.textSecondary} />
+                <Typography variant="bodySmall" color="secondary" style={styles.seatsText}>
+                  Seats: {seats}
+                </Typography>
+              </View>
+            )}
           </View>
         </View>
         <View style={styles.rightSection}>
@@ -149,6 +159,14 @@ const createStyles = (theme: Theme) =>
       alignItems: 'center',
     },
     etaText: {
+      marginLeft: 4,
+    },
+    seatsContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 2,
+    },
+    seatsText: {
       marginLeft: 4,
     },
     rightSection: {

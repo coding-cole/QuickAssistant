@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Keyboard } from 'react-native';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { View, TextInput, TouchableOpacity, StyleSheet, Keyboard, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, Theme } from '@theme';
 
@@ -17,6 +17,43 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const { theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const [text, setText] = useState('');
+  const dot1 = useRef(new Animated.Value(0.3)).current;
+  const dot2 = useRef(new Animated.Value(0.3)).current;
+  const dot3 = useRef(new Animated.Value(0.3)).current;
+
+  useEffect(() => {
+    if (!disabled) {
+      dot1.setValue(0.3);
+      dot2.setValue(0.3);
+      dot3.setValue(0.3);
+      return;
+    }
+
+    const createPulse = (dot: Animated.Value, delay: number) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(dot, {
+            toValue: 1,
+            duration: 400,
+            delay,
+            useNativeDriver: true,
+          }),
+          Animated.timing(dot, {
+            toValue: 0.3,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+
+    const animations = [createPulse(dot1, 0), createPulse(dot2, 150), createPulse(dot3, 300)];
+
+    animations.forEach((animation) => animation.start());
+
+    return () => {
+      animations.forEach((animation) => animation.stop());
+    };
+  }, [disabled, dot1, dot2, dot3]);
 
   const handleSend = () => {
     const trimmedText = text.trim();
@@ -54,11 +91,19 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           accessibilityRole="button"
           accessibilityState={{ disabled: !canSend }}
         >
-          <Ionicons
-            name="send"
-            size={20}
-            color={canSend ? theme.colors.background : theme.colors.textDisabled}
-          />
+          {disabled ? (
+            <View style={styles.loaderContainer}>
+              <Animated.View style={[styles.loaderDot, { opacity: dot1 }]} />
+              <Animated.View style={[styles.loaderDot, { opacity: dot2 }]} />
+              <Animated.View style={[styles.loaderDot, { opacity: dot3 }]} />
+            </View>
+          ) : (
+            <Ionicons
+              name="send"
+              size={20}
+              color={canSend ? theme.colors.background : theme.colors.textDisabled}
+            />
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -103,5 +148,17 @@ const createStyles = (theme: Theme) =>
     },
     sendButtonActive: {
       backgroundColor: theme.colors.primary,
+    },
+    loaderContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    loaderDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: theme.colors.background,
+      marginHorizontal: 2,
     },
   });

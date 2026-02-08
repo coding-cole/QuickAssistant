@@ -1,5 +1,6 @@
 import { baseApi } from './baseApi';
 import type { LoginRequest, LoginResponse, RegisterRequest, User } from '@app-types/api.types';
+import { storageService } from '@services/storage';
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -9,6 +10,17 @@ export const authApi = baseApi.injectEndpoints({
         method: 'POST',
         body: credentials,
       }),
+      async onQueryStarted(_credentials, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          await storageService.setAuthToken(data.accessToken);
+          if (data.refreshToken) {
+            await storageService.setRefreshToken(data.refreshToken);
+          }
+        } catch {
+          // Swallow storage errors; UI handles API failures
+        }
+      },
       invalidatesTags: ['Auth'],
     }),
 
@@ -18,6 +30,17 @@ export const authApi = baseApi.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      async onQueryStarted(_data, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          await storageService.setAuthToken(data.accessToken);
+          if (data.refreshToken) {
+            await storageService.setRefreshToken(data.refreshToken);
+          }
+        } catch {
+          // Swallow storage errors; UI handles API failures
+        }
+      },
       invalidatesTags: ['Auth'],
     }),
 
@@ -26,6 +49,13 @@ export const authApi = baseApi.injectEndpoints({
         url: '/auth/logout',
         method: 'POST',
       }),
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } finally {
+          await storageService.clearAuthData();
+        }
+      },
       invalidatesTags: ['Auth', 'User'],
     }),
 

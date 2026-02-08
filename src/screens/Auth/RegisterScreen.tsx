@@ -17,6 +17,7 @@ import { useTheme, Theme } from '@theme';
 import { useRegisterMutation } from '@api/authApi';
 import { Button, Input, Typography } from '@components/common';
 import { AuthHeader } from '@components/headers';
+import { getApiErrorMessage } from '@utils/apiErrors';
 
 const registerSchema = yup.object({
   firstName: yup.string().required('First name is required'),
@@ -80,11 +81,7 @@ const RegisterScreen: React.FC = () => {
     navigation.navigate('Login');
   };
 
-  const errorMessage = error
-    ? 'data' in error
-      ? (error.data as any)?.message
-      : 'Registration failed'
-    : null;
+  const errorMessage = getApiErrorMessage(error, 'Registration failed');
 
   return (
     <SafeAreaView style={styles.container}>

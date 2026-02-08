@@ -75,6 +75,7 @@ const PriceComparisonScreen: React.FC = () => {
         provider={item.provider}
         price={item.price}
         eta={item.eta}
+        seats={item.seats}
         badge={item.badge}
         onBookPress={() => handleBookPress(item)}
       />

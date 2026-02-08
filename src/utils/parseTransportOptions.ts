@@ -20,6 +20,10 @@ const getProviderColor = (name: string): string => {
   return PROVIDER_COLORS[normalized] || '#666666';
 };
 
+const normalizeProviderName = (name: string): string => {
+  return name.replace(/\s+options$/i, '').trim();
+};
+
 // Parse price from string like "₦18,600" or "₦18,600–21,300" or "NGN 21,100"
 const parsePrice = (priceStr: string): number | null => {
   const normalized = priceStr.replace(/,/g, '');
@@ -39,11 +43,28 @@ const parseETA = (etaStr: string): number | null => {
   return null;
 };
 
+const parseSeats = (seatsStr: string): number | null => {
+  const normalized = seatsStr.toLowerCase();
+
+  if (normalized.includes('seat')) {
+    const match = normalized.match(/(\d+)\s*seats?/i);
+    return match ? parseInt(match[1], 10) : null;
+  }
+
+  if (/^\s*\d+\s*$/.test(normalized)) {
+    const match = normalized.match(/(\d+)/);
+    return match ? parseInt(match[1], 10) : null;
+  }
+
+  return null;
+};
+
 interface ParsedOption {
   providerName: string;
   optionName: string;
   price: number;
   eta: number;
+  seats?: number;
 }
 
 // Parse a single bullet line
@@ -61,12 +82,14 @@ const parseBulletLine = (line: string, currentProvider: string): ParsedOption | 
 
   const etaMatch = line.match(/(~?\s*\d+\s*min)/i);
   const eta = etaMatch ? parseETA(etaMatch[1]) : null;
+  const seats = parseSeats(line) ?? undefined;
 
   return {
     providerName: currentProvider,
     optionName,
     price,
     eta: eta ?? 15,
+    seats,
   };
 };
 
@@ -79,6 +102,7 @@ export function parseTransportOptions(message: string): TransportOption[] {
   let currentOptionName = '';
   let pendingPrice: number | null = null;
   let pendingEta: number | null = null;
+  let pendingSeats: number | null = null;
 
   const pushPendingOption = () => {
     if (currentProvider && pendingPrice !== null) {
@@ -95,6 +119,7 @@ export function parseTransportOptions(message: string): TransportOption[] {
         },
         price: pendingPrice,
         eta: pendingEta ?? 15,
+        seats: pendingSeats ?? 0,
         badge: null,
       });
     }
@@ -102,6 +127,7 @@ export function parseTransportOptions(message: string): TransportOption[] {
     currentOptionName = '';
     pendingPrice = null;
     pendingEta = null;
+    pendingSeats = null;
   };
 
   for (const line of lines) {
@@ -111,7 +137,7 @@ export function parseTransportOptions(message: string): TransportOption[] {
     const headerMatch = trimmed.match(/^###\s*(.+)/);
     if (headerMatch) {
       pushPendingOption();
-      currentProvider = headerMatch[1].trim();
+      currentProvider = normalizeProviderName(headerMatch[1].trim());
       continue;
     }
 
@@ -119,7 +145,7 @@ export function parseTransportOptions(message: string): TransportOption[] {
     const boldHeaderMatch = trimmed.match(/^\*\*(.+?)\*\*$/);
     if (boldHeaderMatch) {
       pushPendingOption();
-      currentProvider = boldHeaderMatch[1].trim();
+      currentProvider = normalizeProviderName(boldHeaderMatch[1].trim());
       continue;
     }
 
@@ -133,6 +159,13 @@ export function parseTransportOptions(message: string): TransportOption[] {
 
     // Check for bullet point with ride option
     if (trimmed.startsWith('-') && currentProvider) {
+      const optionHeaderMatch = trimmed.match(/^-\s*\*\*(.+?)\*\*(?!:)/i);
+      if (optionHeaderMatch) {
+        pushPendingOption();
+        currentOptionName = optionHeaderMatch[1].trim();
+        continue;
+      }
+
       const parsed = parseBulletLine(trimmed, currentProvider);
 
       if (parsed) {
@@ -149,6 +182,7 @@ export function parseTransportOptions(message: string): TransportOption[] {
           },
           price: parsed.price,
           eta: parsed.eta,
+          seats: parsed.seats ?? 0,
           badge: null,
         });
         continue;
@@ -170,9 +204,12 @@ export function parseTransportOptions(message: string): TransportOption[] {
       const etaMatch = trimmed.match(/^-\s*ETA:\s*\*\*(.+?)\*\*/i);
       if (etaMatch) {
         pendingEta = parseETA(etaMatch[1]);
-        if (pendingPrice !== null) {
-          pushPendingOption();
-        }
+      }
+
+      const seatsMatch = trimmed.match(/^-\s*Seats?:\s*\*\*(.+?)\*\*/i);
+      if (seatsMatch) {
+        pendingSeats = parseSeats(seatsMatch[1]);
+        continue;
       }
 
       // Parse dash-separated format: - **Bolt Basic** – **₦3,900** (ETA ~12 min, ...)
@@ -183,6 +220,7 @@ export function parseTransportOptions(message: string): TransportOption[] {
         if (price !== null) {
           const etaMatchInline = trimmed.match(/ETA\s*~?\s*(\d+\s*min)/i);
           const eta = etaMatchInline ? (parseETA(etaMatchInline[1]) ?? 15) : 15;
+          const seats = parseSeats(trimmed) ?? 0;
           const color = getProviderColor(currentProvider);
           const displayName = optionName.includes(currentProvider)
             ? optionName
@@ -196,6 +234,7 @@ export function parseTransportOptions(message: string): TransportOption[] {
             },
             price,
             eta,
+            seats,
             badge: null,
           });
         }
