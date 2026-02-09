@@ -16,6 +16,9 @@ export default {
     },
     ios: {
       supportsTablet: true,
+      infoPlist: {
+        LSApplicationQueriesSchemes: ['uber', 'bolt'],
+      },
     },
     android: {
       adaptiveIcon: {
@@ -25,6 +28,18 @@ export default {
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
     },
+    plugins: [
+      [
+        'expo-build-properties',
+        {
+          android: {
+            queries: {
+              package: ['com.ubercab', 'ee.mtakso.client'],
+            },
+          },
+        },
+      ],
+    ],
     web: {
       favicon: './assets/favicon.png',
     },

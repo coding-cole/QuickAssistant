@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import {
+  Alert,
   View,
   StyleSheet,
   FlatList,
@@ -15,6 +16,7 @@ import { Typography, TransportCard, TransportOption } from '@components/common';
 import { HomeStackParamList } from '@app-types/navigation.types';
 import { getTransportOptionsForRoute } from '@utils/mock/data';
 import { formatRelativeTime } from '@utils/formatters';
+import { rideAppsService, RideAppProvider, RideAppParams } from '@services/rideApps';
 
 type PriceComparisonRouteProp = RouteProp<HomeStackParamList, 'PriceComparison'>;
 
@@ -64,10 +66,28 @@ const PriceComparisonScreen: React.FC = () => {
     setIsRefreshing(false);
   }, [fetchOptions]);
 
-  const handleBookPress = useCallback((option: TransportOption) => {
-    // In a real app, this would open the provider's app or booking flow
-    console.warn(`Booking ${option.provider.name} for ₦${option.price}`);
-  }, []);
+  const handleBookPress = useCallback(
+    (option: TransportOption) => {
+      const providerMap: Record<string, RideAppProvider> = {
+        Uber: 'uber',
+        Bolt: 'bolt',
+      };
+
+      const provider = providerMap[option.provider.name];
+      if (provider) {
+        const params: RideAppParams = {
+          dropoff: destination ? { latitude: 0, longitude: 0, nickname: destination } : undefined,
+        };
+        rideAppsService.openApp(provider, params);
+      } else {
+        Alert.alert(
+          'Not Supported',
+          `Direct booking for ${option.provider.name} is not yet available.`
+        );
+      }
+    },
+    [destination]
+  );
 
   const renderOption = useCallback(
     ({ item }: { item: TransportOption }) => (
