@@ -2,6 +2,7 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps } from '@react-navigation/native';
+import { TransportOption } from '@components/common';
 
 // Auth Stack
 export type AuthStackParamList = {
@@ -14,7 +15,7 @@ export type AuthStackParamList = {
 export type HomeStackParamList = {
   HomeMain: undefined;
   Chat: { initialQuery?: string };
-  PriceComparison: { origin?: string; destination?: string };
+  PriceComparison: { origin?: string; destination?: string; transportOptions?: TransportOption[] };
   Notifications: undefined;
   Calendar: { selectedDate?: string }; // ISO date string
 };

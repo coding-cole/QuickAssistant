@@ -9,20 +9,17 @@ import {
   Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme, Theme } from '@theme';
-import { TransportCard, TransportOption } from '@components/common';
 import { ChatMessage, ChatInput, Message } from '@components/chat';
 import { HomeStackParamList } from '@app-types/navigation.types';
 import { groqService } from '@services/ai';
 
 type ChatScreenRouteProp = RouteProp<HomeStackParamList, 'Chat'>;
+type ChatScreenNavigationProp = NativeStackNavigationProp<HomeStackParamList, 'Chat'>;
 
-interface ExtendedMessage extends Message {
-  transportOptions?: TransportOption[];
-}
-
-const getWelcomeMessage = (): ExtendedMessage => ({
+const getWelcomeMessage = (): Message => ({
   id: 'welcome',
   text: `Hello! I'm QuickAssistant, your AI-powered mobility companion for Lagos. Where would you like to go today?`,
   isUser: false,
@@ -32,9 +29,10 @@ const getWelcomeMessage = (): ExtendedMessage => ({
 const ChatScreen: React.FC = () => {
   const { theme } = useTheme();
   const route = useRoute<ChatScreenRouteProp>();
+  const navigation = useNavigation<ChatScreenNavigationProp>();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const [messages, setMessages] = useState<ExtendedMessage[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const dot1 = useRef(new Animated.Value(0.3)).current;
@@ -95,14 +93,14 @@ const ChatScreen: React.FC = () => {
     }
   }, [initialQuery]);
 
-  const addMessage = useCallback((message: ExtendedMessage) => {
+  const addMessage = useCallback((message: Message) => {
     setMessages((prev) => [...prev, message]);
   }, []);
 
   const handleSend = useCallback(
     async (text: string) => {
       // Add user message
-      const userMessage: ExtendedMessage = {
+      const userMessage: Message = {
         id: `user-${Date.now()}`,
         text,
         isUser: true,
@@ -117,7 +115,7 @@ const ChatScreen: React.FC = () => {
 
         if (response.success) {
           // Add AI response
-          const aiMessage: ExtendedMessage = {
+          const aiMessage: Message = {
             id: `ai-${Date.now()}`,
             text: response.message,
             isUser: false,
@@ -126,26 +124,13 @@ const ChatScreen: React.FC = () => {
 
           addMessage(aiMessage);
 
-          // Debug logging
-          console.log('AI Response:', {
-            hasMetadata: !!response.metadata,
-            hasTransportOptions: response.metadata?.hasTransportOptions,
-            transportOptionsCount: response.metadata?.transportOptions?.length,
-          });
-
-          // If AI provided transport options in metadata, show them
+          // If AI provided transport options, navigate to PriceComparison
           if (response.metadata?.hasTransportOptions && response.metadata?.transportOptions) {
-            console.log('Showing transport options:', response.metadata.transportOptions.length);
-            console.log('[ChatScreen] Transport options data:', response.metadata.transportOptions);
-            setTimeout(() => {
-              addMessage({
-                id: `ai-options-${Date.now()}`,
-                text: '',
-                isUser: false,
-                timestamp: new Date(),
-                transportOptions: response.metadata!.transportOptions,
-              });
-            }, 500);
+            navigation.navigate('PriceComparison', {
+              origin: response.metadata.origin,
+              destination: response.metadata.destination,
+              transportOptions: response.metadata.transportOptions,
+            });
           }
         } else {
           // Error response
@@ -171,65 +156,15 @@ const ChatScreen: React.FC = () => {
         setIsTyping(false);
       }
     },
-    [addMessage]
-  );
-
-  const handleBookPress = useCallback(
-    (option: TransportOption) => {
-      addMessage({
-        id: `user-${Date.now()}`,
-        text: `Book ${option.provider.name}`,
-        isUser: true,
-        timestamp: new Date(),
-      });
-
-      setIsTyping(true);
-      setTimeout(() => {
-        addMessage({
-          id: `ai-${Date.now()}`,
-          text: `Great choice! Opening ${option.provider.name} app to complete your booking for ₦${option.price.toLocaleString('en-NG')}. Your ride will arrive in approximately ${option.eta} minutes.`,
-          isUser: false,
-          timestamp: new Date(),
-        });
-        setIsTyping(false);
-      }, 1000);
-    },
-    [addMessage]
+    [addMessage, navigation]
   );
 
   const renderMessage = useCallback(
-    ({ item }: { item: ExtendedMessage }) => {
-      console.log('[ChatScreen] Rendering message:', {
-        id: item.id,
-        hasTransportOptions: !!item.transportOptions,
-        transportCount: item.transportOptions?.length,
-      });
-
-      return (
-        <View>
-          {item.text.trim() !== '' && <ChatMessage message={item} showTimestamp />}
-          {item.transportOptions && (
-            <View style={styles.transportOptionsContainer}>
-              {item.transportOptions.map((option, index) => (
-                <TransportCard
-                  key={`${option.provider.name}-${index}`}
-                  provider={option.provider}
-                  price={option.price}
-                  eta={option.eta}
-                  seats={option.seats}
-                  badge={option.badge}
-                  onBookPress={() => handleBookPress(option)}
-                />
-              ))}
-            </View>
-          )}
-        </View>
-      );
-    },
-    [styles.transportOptionsContainer, handleBookPress]
+    ({ item }: { item: Message }) => <ChatMessage message={item} showTimestamp />,
+    []
   );
 
-  const keyExtractor = useCallback((item: ExtendedMessage) => item.id, []);
+  const keyExtractor = useCallback((item: Message) => item.id, []);
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -282,10 +217,6 @@ const createStyles = (theme: Theme) =>
     },
     messageList: {
       paddingVertical: theme.spacing.md,
-    },
-    transportOptionsContainer: {
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
     },
     typingIndicator: {
       flexDirection: 'row',

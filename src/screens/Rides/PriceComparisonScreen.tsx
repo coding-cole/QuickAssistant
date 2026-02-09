@@ -27,38 +27,48 @@ const PriceComparisonScreen: React.FC = () => {
   const route = useRoute<PriceComparisonRouteProp>();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const { origin = 'Current Location', destination = 'Lekki' } = route.params || {};
+  const {
+    origin = 'Current Location',
+    destination = 'Lekki',
+    transportOptions: passedOptions,
+  } = route.params || {};
 
-  const [transportOptions, setTransportOptions] = useState<TransportOption[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const hasPassedOptions = !!passedOptions?.length;
+
+  const [transportOptions, setTransportOptions] = useState<TransportOption[]>(passedOptions ?? []);
+  const [isLoading, setIsLoading] = useState(!hasPassedOptions);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   const fetchOptions = useCallback(async () => {
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
     const options = getTransportOptionsForRoute(origin, destination);
     setTransportOptions(options);
     setLastUpdated(new Date());
   }, [origin, destination]);
 
+  // Only fetch mock data if no options were passed from chat
   useEffect(() => {
+    if (hasPassedOptions) return;
+
     const loadInitialData = async () => {
       setIsLoading(true);
       await fetchOptions();
       setIsLoading(false);
     };
     loadInitialData();
-  }, [fetchOptions]);
+  }, [fetchOptions, hasPassedOptions]);
 
-  // Auto-refresh every 30 seconds
+  // Auto-refresh only when using mock data
   useEffect(() => {
+    if (hasPassedOptions) return;
+
     const interval = setInterval(async () => {
       await fetchOptions();
     }, AUTO_REFRESH_INTERVAL);
 
     return () => clearInterval(interval);
-  }, [fetchOptions]);
+  }, [fetchOptions, hasPassedOptions]);
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);

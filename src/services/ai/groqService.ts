@@ -25,6 +25,8 @@ export interface AIResponse {
   metadata?: {
     hasTransportOptions?: boolean;
     transportOptions?: TransportOption[];
+    origin?: string;
+    destination?: string;
     hasActions?: boolean;
     actions?: ActionButton[];
     eventSuggestions?: string[];
@@ -54,16 +56,27 @@ class TripEstimationService {
       // Parse transport options from the markdown response
       const transportOptions = parseTransportOptions(responseMessage);
 
+      if (transportOptions.length > 0) {
+        // Parse origin/destination from the "**Route:**" line in the markdown
+        const routeMatch = responseMessage.match(
+          /\*\*Route:\*\*\s*\n?\s*(.+?)\s*→\s*(.+?)(?:\s*\n|$)/
+        );
+
+        return {
+          success: true,
+          message: responseMessage,
+          metadata: {
+            hasTransportOptions: true,
+            transportOptions,
+            origin: routeMatch?.[1]?.trim(),
+            destination: routeMatch?.[2]?.trim(),
+          },
+        };
+      }
+
       return {
         success: true,
         message: responseMessage,
-        metadata:
-          transportOptions.length > 0
-            ? {
-                hasTransportOptions: true,
-                transportOptions,
-              }
-            : undefined,
       };
     } catch (error) {
       console.error('[TripEstimationService] Error:', error);
