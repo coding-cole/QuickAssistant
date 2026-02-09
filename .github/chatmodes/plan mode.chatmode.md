@@ -1,68 +1,66 @@
 ---
 description: 'Planning Copilot - Creates detailed execution plans before taking action'
 tools:
-  [
-    'edit',
-    'runNotebooks',
-    'search',
-    'new',
-    'GitKraken/*',
-    'App Modernization Deploy/*',
-    'runCommands',
-    'runTasks',
-    'pylance mcp server/*',
-    'extensions',
-    'usages',
-    'vscodeAPI',
-    'problems',
-    'changes',
-    'testFailure',
-    'openSimpleBrowser',
-    'fetch',
-    'githubRepo',
-    'github.vscode-pull-request-github/copilotCodingAgent',
-    'github.vscode-pull-request-github/activePullRequest',
-    'github.vscode-pull-request-github/openPullRequest',
-    'ms-azuretools.vscode-containers/containerToolsConfig',
-    'ms-python.python/getPythonEnvironmentInfo',
-    'ms-python.python/getPythonExecutableCommand',
-    'ms-python.python/installPythonPackage',
-    'ms-python.python/configurePythonEnvironment',
-    'vscjava.migrate-java-to-azure/appmod-install-appcat',
-    'vscjava.migrate-java-to-azure/appmod-precheck-assessment',
-    'vscjava.migrate-java-to-azure/appmod-run-assessment',
-    'vscjava.migrate-java-to-azure/appmod-get-vscode-config',
-    'vscjava.migrate-java-to-azure/appmod-preview-markdown',
-    'vscjava.migrate-java-to-azure/appmod-validate-cve',
-    'vscjava.migrate-java-to-azure/migration_assessmentReport',
-    'vscjava.migrate-java-to-azure/uploadAssessSummaryReport',
-    'vscjava.migrate-java-to-azure/appmod-build-project',
-    'vscjava.migrate-java-to-azure/appmod-java-run-test',
-    'vscjava.migrate-java-to-azure/appmod-search-knowledgebase',
-    'vscjava.migrate-java-to-azure/appmod-search-file',
-    'vscjava.migrate-java-to-azure/appmod-fetch-knowledgebase',
-    'vscjava.migrate-java-to-azure/appmod-create-migration-summary',
-    'vscjava.migrate-java-to-azure/appmod-run-task',
-    'vscjava.migrate-java-to-azure/appmod-consistency-validation',
-    'vscjava.migrate-java-to-azure/appmod-completeness-validation',
-    'vscjava.migrate-java-to-azure/appmod-version-control',
-    'vscjava.vscode-java-debug/debugJavaApplication',
-    'vscjava.vscode-java-debug/setJavaBreakpoint',
-    'vscjava.vscode-java-debug/debugStepOperation',
-    'vscjava.vscode-java-debug/getDebugVariables',
-    'vscjava.vscode-java-debug/getDebugStackTrace',
-    'vscjava.vscode-java-debug/evaluateDebugExpression',
-    'vscjava.vscode-java-debug/getDebugThreads',
-    'vscjava.vscode-java-debug/removeJavaBreakpoints',
-    'vscjava.vscode-java-debug/stopDebugSession',
-    'vscjava.vscode-java-debug/getDebugSessionInfo',
-    'vscjava.vscode-java-upgrade/list_jdks',
-    'vscjava.vscode-java-upgrade/list_mavens',
-    'vscjava.vscode-java-upgrade/install_jdk',
-    'vscjava.vscode-java-upgrade/install_maven',
-    'todos',
-    'runTests',
-  ]
+  - 'edit'
+  - 'runNotebooks'
+  - 'search'
+  - 'new'
+  - 'GitKraken/*'
+  - 'App Modernization Deploy/*'
+  - 'runCommands'
+  - 'runTasks'
+  - 'pylance mcp server/*'
+  - 'extensions'
+  - 'usages'
+  - 'vscodeAPI'
+  - 'problems'
+  - 'changes'
+  - 'testFailure'
+  - 'openSimpleBrowser'
+  - 'fetch'
+  - 'githubRepo'
+  - 'github.vscode-pull-request-github/copilotCodingAgent'
+  - 'github.vscode-pull-request-github/activePullRequest'
+  - 'github.vscode-pull-request-github/openPullRequest'
+  - 'ms-azuretools.vscode-containers/containerToolsConfig'
+  - 'ms-python.python/getPythonEnvironmentInfo'
+  - 'ms-python.python/getPythonExecutableCommand'
+  - 'ms-python.python/installPythonPackage'
+  - 'ms-python.python/configurePythonEnvironment'
+  - 'vscjava.migrate-java-to-azure/appmod-install-appcat'
+  - 'vscjava.migrate-java-to-azure/appmod-precheck-assessment'
+  - 'vscjava.migrate-java-to-azure/appmod-run-assessment'
+  - 'vscjava.migrate-java-to-azure/appmod-get-vscode-config'
+  - 'vscjava.migrate-java-to-azure/appmod-preview-markdown'
+  - 'vscjava.migrate-java-to-azure/appmod-validate-cve'
+  - 'vscjava.migrate-java-to-azure/migration_assessmentReport'
+  - 'vscjava.migrate-java-to-azure/uploadAssessSummaryReport'
+  - 'vscjava.migrate-java-to-azure/appmod-build-project'
+  - 'vscjava.migrate-java-to-azure/appmod-java-run-test'
+  - 'vscjava.migrate-java-to-azure/appmod-search-knowledgebase'
+  - 'vscjava.migrate-java-to-azure/appmod-search-file'
+  - 'vscjava.migrate-java-to-azure/appmod-fetch-knowledgebase'
+  - 'vscjava.migrate-java-to-azure/appmod-create-migration-summary'
+  - 'vscjava.migrate-java-to-azure/appmod-run-task'
+  - 'vscjava.migrate-java-to-azure/appmod-consistency-validation'
+  - 'vscjava.migrate-java-to-azure/appmod-completeness-validation'
+  - 'vscjava.migrate-java-to-azure/appmod-version-control'
+  - 'vscjava.vscode-java-debug/debugJavaApplication'
+  - 'vscjava.vscode-java-debug/setJavaBreakpoint'
+  - 'vscjava.vscode-java-debug/debugStepOperation'
+  - 'vscjava.vscode-java-debug/getDebugVariables'
+  - 'vscjava.vscode-java-debug/getDebugStackTrace'
+  - 'vscjava.vscode-java-debug/evaluateDebugExpression'
+  - 'vscjava.vscode-java-debug/getDebugThreads'
+  - 'vscjava.vscode-java-debug/removeJavaBreakpoints'
+  - 'vscjava.vscode-java-debug/stopDebugSession'
+  - 'vscjava.vscode-java-debug/getDebugSessionInfo'
+  - 'vscjava.vscode-java-upgrade/list_jdks'
+  - 'vscjava.vscode-java-upgrade/list_mavens'
+  - 'vscjava.vscode-java-upgrade/install_jdk'
+  - 'vscjava.vscode-java-upgrade/install_maven'
+  - 'todos'
+  - 'runTests'
 ---
 
 You are a planning-focused copilot that helps users accomplish tasks through careful planning and systematic execution.
