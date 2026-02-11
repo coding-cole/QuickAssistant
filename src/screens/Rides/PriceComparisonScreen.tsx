@@ -9,7 +9,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, Theme } from '@theme';
 import { Typography, TransportCard, TransportOption } from '@components/common';
@@ -19,18 +20,24 @@ import { formatRelativeTime } from '@utils/formatters';
 import { rideAppsService, RideAppProvider, RideAppParams } from '@services/rideApps';
 
 type PriceComparisonRouteProp = RouteProp<HomeStackParamList, 'PriceComparison'>;
+type PriceComparisonNavigationProp = NativeStackNavigationProp<
+  HomeStackParamList,
+  'PriceComparison'
+>;
 
 const AUTO_REFRESH_INTERVAL = 30000; // 30 seconds
 
 const PriceComparisonScreen: React.FC = () => {
   const { theme } = useTheme();
   const route = useRoute<PriceComparisonRouteProp>();
+  const navigation = useNavigation<PriceComparisonNavigationProp>();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   const {
     origin = 'Current Location',
     destination = 'Lekki',
     transportOptions: passedOptions,
+    lastQuery,
   } = route.params || {};
 
   const hasPassedOptions = !!passedOptions?.length;
@@ -70,11 +77,17 @@ const PriceComparisonScreen: React.FC = () => {
     return () => clearInterval(interval);
   }, [fetchOptions, hasPassedOptions]);
 
-  const handleRefresh = useCallback(async () => {
-    setIsRefreshing(true);
-    await fetchOptions();
-    setIsRefreshing(false);
-  }, [fetchOptions]);
+  const handleRefresh = useCallback(() => {
+    if (lastQuery) {
+      navigation.navigate('Chat', {
+        refreshQuery: lastQuery,
+        refreshTimestamp: Date.now(),
+      });
+    } else {
+      setIsRefreshing(true);
+      fetchOptions().then(() => setIsRefreshing(false));
+    }
+  }, [lastQuery, navigation, fetchOptions]);
 
   const handleBookPress = useCallback(
     (option: TransportOption) => {
@@ -186,11 +199,13 @@ const PriceComparisonScreen: React.FC = () => {
         ListHeaderComponent={renderHeader}
         ListFooterComponent={renderFooter}
         refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={handleRefresh}
-            tintColor={theme.colors.primary}
-          />
+          !lastQuery ? (
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              tintColor={theme.colors.primary}
+            />
+          ) : undefined
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>

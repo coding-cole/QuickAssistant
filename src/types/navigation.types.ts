@@ -14,8 +14,13 @@ export type AuthStackParamList = {
 // Home Stack (screens accessible from Home tab)
 export type HomeStackParamList = {
   HomeMain: undefined;
-  Chat: { initialQuery?: string };
-  PriceComparison: { origin?: string; destination?: string; transportOptions?: TransportOption[] };
+  Chat: { initialQuery?: string; refreshQuery?: string; refreshTimestamp?: number };
+  PriceComparison: {
+    origin?: string;
+    destination?: string;
+    transportOptions?: TransportOption[];
+    lastQuery?: string;
+  };
   Notifications: undefined;
   Calendar: { selectedDate?: string }; // ISO date string
 };

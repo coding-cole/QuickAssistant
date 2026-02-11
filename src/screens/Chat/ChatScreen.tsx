@@ -39,7 +39,7 @@ const ChatScreen: React.FC = () => {
   const dot2 = useRef(new Animated.Value(0.3)).current;
   const dot3 = useRef(new Animated.Value(0.3)).current;
 
-  const { initialQuery } = route.params || {};
+  const { initialQuery, refreshQuery, refreshTimestamp } = route.params || {};
 
   // Set welcome message on mount
   useEffect(() => {
@@ -85,13 +85,19 @@ const ChatScreen: React.FC = () => {
   // Handle initial query from navigation
   useEffect(() => {
     if (initialQuery) {
-      // Small delay to ensure component is mounted
       const timer = setTimeout(() => {
         handleSend(initialQuery);
       }, 500);
       return () => clearTimeout(timer);
     }
   }, [initialQuery]);
+
+  // Handle refresh from PriceComparison — re-ask the last query
+  useEffect(() => {
+    if (refreshQuery && refreshTimestamp) {
+      handleSend(refreshQuery);
+    }
+  }, [refreshTimestamp]);
 
   const addMessage = useCallback((message: Message) => {
     setMessages((prev) => [...prev, message]);
@@ -130,6 +136,7 @@ const ChatScreen: React.FC = () => {
               origin: response.metadata.origin,
               destination: response.metadata.destination,
               transportOptions: response.metadata.transportOptions,
+              lastQuery: text,
             });
           }
         } else {
