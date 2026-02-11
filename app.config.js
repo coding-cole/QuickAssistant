@@ -18,6 +18,10 @@ export default {
       supportsTablet: true,
       infoPlist: {
         LSApplicationQueriesSchemes: ['uber', 'bolt'],
+        NSAppTransportSecurity: {
+          NSAllowsArbitraryLoads: true,
+          NSAllowsLocalNetworking: true,
+        },
       },
     },
     android: {
@@ -47,11 +51,7 @@ export default {
       apiBaseUrl: process.env.API_BASE_URL || 'https://api.example.com',
       appEnv: process.env.APP_ENV || 'development',
       groqApiKey: process.env.GROQ_API_KEY || '',
-      tripEstimationUrl:
-        process.env.TRIP_ESTIMATION_URL ||
-        'https://quantitative-extraordinary-permanent-choose.trycloudflare.com/process/sendTrip',
       tripEstimationToken: process.env.TRIP_ESTIMATION_TOKEN || '',
-      tripEstimationMockEnabled: process.env.TRIP_ESTIMATION_MOCK_ENABLED === 'true',
     },
   },
 };

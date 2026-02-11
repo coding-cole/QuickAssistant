@@ -1,10 +1,7 @@
+import { Platform } from 'react-native';
 import { baseApi } from '@api/baseApi';
-import {
-  TRIP_ESTIMATION_URL,
-  TRIP_ESTIMATION_TOKEN,
-  TRIP_ESTIMATION_MOCK_ENABLED,
-  IS_DEV,
-} from '@config/env';
+import { TRIP_ESTIMATION_TOKEN, IS_DEV } from '@config/env';
+import { TRIP_ESTIMATION_MOCK_ENABLED, TRIP_ESTIMATION_URL } from '@/globals';
 
 export interface TripEstimationRequestPayload {
   messageToAI: string;
@@ -54,13 +51,11 @@ const MOCK_TRIP_ESTIMATION_RESPONSE: TripEstimationResponse = {
   postListData: null,
 };
 
-// CORS proxy for development (run: node proxy-server.js)
-// Use your Mac's IP address for iOS simulator access
+// CORS proxy only needed for web (mobile has no CORS restrictions)
 const PROXY_URL = 'http://192.168.1.168:3001';
 
-// Get the URL to use (proxy in dev, direct in prod)
 const getApiUrl = (): string => {
-  if (IS_DEV) {
+  if (IS_DEV && Platform.OS === 'web') {
     return `${PROXY_URL}?url=${encodeURIComponent(TRIP_ESTIMATION_URL)}`;
   }
   return TRIP_ESTIMATION_URL;
@@ -91,7 +86,7 @@ export const tripEstimationApi = baseApi.injectEndpoints({
       },
     }),
   }),
-  overrideExisting: false,
+  overrideExisting: true,
 });
 
 export const { useSendTripMutation } = tripEstimationApi;

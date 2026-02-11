@@ -19,6 +19,13 @@ import { getTransportOptionsForRoute } from '@utils/mock/data';
 import { formatRelativeTime } from '@utils/formatters';
 import { rideAppsService, RideAppProvider, RideAppParams } from '@services/rideApps';
 
+export type PriceComparisonParams = {
+  origin?: string;
+  destination?: string;
+  transportOptions?: TransportOption[];
+  lastQuery?: string;
+};
+
 type PriceComparisonRouteProp = RouteProp<HomeStackParamList, 'PriceComparison'>;
 type PriceComparisonNavigationProp = NativeStackNavigationProp<
   HomeStackParamList,
@@ -91,15 +98,19 @@ const PriceComparisonScreen: React.FC = () => {
 
   const handleBookPress = useCallback(
     (option: TransportOption) => {
-      const providerMap: Record<string, RideAppProvider> = {
-        Uber: 'uber',
-        Bolt: 'bolt',
-      };
+      const supportedProviders: { keyword: string; provider: RideAppProvider }[] = [
+        { keyword: 'uber', provider: 'uber' },
+        { keyword: 'bolt', provider: 'bolt' },
+      ];
 
-      const provider = providerMap[option.provider.name];
+      const name = option.provider.name.toLowerCase();
+      const match = supportedProviders.find((p) => name.includes(p.keyword));
+      const provider = match?.provider;
       if (provider) {
         const params: RideAppParams = {
-          dropoff: destination ? { latitude: 0, longitude: 0, nickname: destination } : undefined,
+          dropoff: destination
+            ? { latitude: 0, longitude: 0, nickname: destination, formattedAddress: destination }
+            : undefined,
         };
         rideAppsService.openApp(provider, params);
       } else {

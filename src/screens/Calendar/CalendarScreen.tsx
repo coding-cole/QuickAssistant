@@ -26,6 +26,10 @@ import {
   endOfWeek,
 } from 'date-fns';
 
+export type CalendarParams = {
+  selectedDate?: string;
+};
+
 type CalendarNavigationProp = NativeStackNavigationProp<HomeStackParamList, 'Calendar'>;
 type CalendarRouteProp = RouteProp<HomeStackParamList, 'Calendar'>;
 

@@ -13,6 +13,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { AuthHeader } from '@components/headers';
 import { getApiErrorMessage } from '@utils/apiErrors';
 
+export type ForgotPasswordParams = {
+  email?: string;
+};
+
 const forgotPasswordSchema = yup.object({
   email: yup.string().email('Invalid email address').required('Email is required'),
 });

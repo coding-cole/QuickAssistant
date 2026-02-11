@@ -31,12 +31,15 @@ interface RideAppConfig {
 
 // ── Deep Link Builders ─────────────────────────────────────────────────────────
 
+const hasValidCoordinates = (coords: Coordinates): boolean =>
+  coords.latitude !== 0 || coords.longitude !== 0;
+
 const buildUberDeepLink = (params?: RideAppParams): string => {
   if (!params?.pickup && !params?.dropoff) return 'uber://';
 
   const parts: string[] = ['action=setPickup'];
 
-  if (params.pickup) {
+  if (params.pickup && hasValidCoordinates(params.pickup)) {
     parts.push(
       `pickup[latitude]=${params.pickup.latitude}`,
       `pickup[longitude]=${params.pickup.longitude}`
@@ -46,11 +49,12 @@ const buildUberDeepLink = (params?: RideAppParams): string => {
   }
 
   if (params.dropoff) {
-    parts.push(
-      `dropoff[latitude]=${params.dropoff.latitude}`,
-      `dropoff[longitude]=${params.dropoff.longitude}`
-    );
-    // Uber requires at least nickname OR formatted_address for dropoff to work
+    if (hasValidCoordinates(params.dropoff)) {
+      parts.push(
+        `dropoff[latitude]=${params.dropoff.latitude}`,
+        `dropoff[longitude]=${params.dropoff.longitude}`
+      );
+    }
     if (params.dropoff.nickname) {
       parts.push(`dropoff[nickname]=${encodeURIComponent(params.dropoff.nickname)}`);
     }
@@ -59,7 +63,6 @@ const buildUberDeepLink = (params?: RideAppParams): string => {
         `dropoff[formatted_address]=${encodeURIComponent(params.dropoff.formattedAddress)}`
       );
     }
-    // Fallback: if neither was provided, use coordinates as nickname
     if (!params.dropoff.nickname && !params.dropoff.formattedAddress) {
       parts.push(`dropoff[nickname]=${encodeURIComponent('Destination')}`);
     }
@@ -73,17 +76,19 @@ const buildUberUniversalLink = (params?: RideAppParams): string => {
 
   const parts: string[] = [];
 
-  if (params.pickup) {
+  if (params.pickup && hasValidCoordinates(params.pickup)) {
     parts.push(
       `pickup[latitude]=${params.pickup.latitude}`,
       `pickup[longitude]=${params.pickup.longitude}`
     );
   }
 
-  parts.push(
-    `dropoff[latitude]=${params.dropoff.latitude}`,
-    `dropoff[longitude]=${params.dropoff.longitude}`
-  );
+  if (hasValidCoordinates(params.dropoff)) {
+    parts.push(
+      `dropoff[latitude]=${params.dropoff.latitude}`,
+      `dropoff[longitude]=${params.dropoff.longitude}`
+    );
+  }
 
   const nickname = params.dropoff.nickname || params.dropoff.formattedAddress || 'Destination';
   parts.push(`dropoff[nickname]=${encodeURIComponent(nickname)}`);
@@ -95,19 +100,10 @@ const buildUberUniversalLink = (params?: RideAppParams): string => {
   return `https://m.uber.com/ul/?action=setPickup&${parts.join('&')}`;
 };
 
-const buildBoltDeepLink = (params?: RideAppParams): string => {
-  if (!params?.pickup && !params?.dropoff) return 'bolt://';
-
-  const parts: string[] = [];
-
-  if (params.pickup) {
-    parts.push(`pickup=${params.pickup.latitude},${params.pickup.longitude}`);
-  }
-  if (params.dropoff) {
-    parts.push(`destination=${params.dropoff.latitude},${params.dropoff.longitude}`);
-  }
-
-  return `bolt://rideoffer?${parts.join('&')}`;
+const buildBoltDeepLink = (): string => {
+  // Bolt has no documented public deep link API.
+  // The only reliable behavior is opening the app itself.
+  return 'bolt://';
 };
 
 // ── App Configurations ─────────────────────────────────────────────────────────

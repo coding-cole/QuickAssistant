@@ -2,27 +2,25 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps } from '@react-navigation/native';
-import { TransportOption } from '@components/common';
+import { ForgotPasswordParams } from '@screens/Auth/ForgotPasswordScreen';
+import { ChatParams } from '@screens/Chat/ChatScreen';
+import { PriceComparisonParams } from '@screens/Rides/PriceComparisonScreen';
+import { CalendarParams } from '@screens/Calendar/CalendarScreen';
 
 // Auth Stack
 export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
-  ForgotPassword: { email?: string };
+  ForgotPassword: ForgotPasswordParams;
 };
 
 // Home Stack (screens accessible from Home tab)
 export type HomeStackParamList = {
   HomeMain: undefined;
-  Chat: { initialQuery?: string; refreshQuery?: string; refreshTimestamp?: number };
-  PriceComparison: {
-    origin?: string;
-    destination?: string;
-    transportOptions?: TransportOption[];
-    lastQuery?: string;
-  };
+  Chat: ChatParams;
+  PriceComparison: PriceComparisonParams;
   Notifications: undefined;
-  Calendar: { selectedDate?: string }; // ISO date string
+  Calendar: CalendarParams;
 };
 
 // Main Tab Navigator

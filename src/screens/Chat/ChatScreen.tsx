@@ -16,6 +16,12 @@ import { ChatMessage, ChatInput, Message } from '@components/chat';
 import { HomeStackParamList } from '@app-types/navigation.types';
 import { groqService } from '@services/ai';
 
+export type ChatParams = {
+  initialQuery?: string;
+  refreshQuery?: string;
+  refreshTimestamp?: number;
+};
+
 type ChatScreenRouteProp = RouteProp<HomeStackParamList, 'Chat'>;
 type ChatScreenNavigationProp = NativeStackNavigationProp<HomeStackParamList, 'Chat'>;
 
