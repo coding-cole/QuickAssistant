@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp, StackActions } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, Theme } from '@theme';
@@ -86,10 +86,12 @@ const PriceComparisonScreen: React.FC = () => {
 
   const handleRefresh = useCallback(() => {
     if (lastQuery) {
-      navigation.navigate('Chat', {
-        refreshQuery: lastQuery,
-        refreshTimestamp: Date.now(),
-      });
+      navigation.dispatch(
+        StackActions.popTo('Chat', {
+          refreshQuery: lastQuery,
+          refreshTimestamp: Date.now(),
+        })
+      );
     } else {
       setIsRefreshing(true);
       fetchOptions().then(() => setIsRefreshing(false));

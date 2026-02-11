@@ -41,6 +41,7 @@ const ChatScreen: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const flatListRef = useRef<FlatList>(null);
+  const isRefreshRef = useRef(false);
   const dot1 = useRef(new Animated.Value(0.3)).current;
   const dot2 = useRef(new Animated.Value(0.3)).current;
   const dot3 = useRef(new Animated.Value(0.3)).current;
@@ -98,9 +99,10 @@ const ChatScreen: React.FC = () => {
     }
   }, [initialQuery]);
 
-  // Handle refresh from PriceComparison — re-ask the last query
+  // Handle refresh from PriceComparison — re-ask the last query and auto-navigate back
   useEffect(() => {
     if (refreshQuery && refreshTimestamp) {
+      isRefreshRef.current = true;
       handleSend(refreshQuery);
     }
   }, [refreshTimestamp]);
@@ -126,24 +128,43 @@ const ChatScreen: React.FC = () => {
         const response = await groqService.sendMessage(text);
 
         if (response.success) {
-          // Add AI response
-          const aiMessage: Message = {
-            id: `ai-${Date.now()}`,
-            text: response.message,
-            isUser: false,
-            timestamp: new Date(),
-          };
+          const meta = response.metadata;
 
-          addMessage(aiMessage);
-
-          // If AI provided transport options, navigate to PriceComparison
-          if (response.metadata?.hasTransportOptions && response.metadata?.transportOptions) {
-            navigation.navigate('PriceComparison', {
-              origin: response.metadata.origin,
-              destination: response.metadata.destination,
-              transportOptions: response.metadata.transportOptions,
+          if (meta?.hasTransportOptions && meta?.transportOptions && meta?.summary) {
+            const priceComparisonParams = {
+              origin: meta.origin,
+              destination: meta.destination,
+              transportOptions: meta.transportOptions,
               lastQuery: text,
-            });
+            };
+
+            // Add summary message to chat history
+            const aiMessage: Message = {
+              id: `ai-${Date.now()}`,
+              text: meta.summary,
+              isUser: false,
+              timestamp: new Date(),
+              actionLabel: 'See Options',
+              onActionPress: () => {
+                navigation.navigate('PriceComparison', priceComparisonParams);
+              },
+            };
+            addMessage(aiMessage);
+
+            // Auto-navigate if triggered by refresh (no manual tap needed)
+            if (isRefreshRef.current) {
+              isRefreshRef.current = false;
+              navigation.navigate('PriceComparison', priceComparisonParams);
+            }
+          } else {
+            // Regular AI response (no transport options)
+            const aiMessage: Message = {
+              id: `ai-${Date.now()}`,
+              text: response.message,
+              isUser: false,
+              timestamp: new Date(),
+            };
+            addMessage(aiMessage);
           }
         } else {
           // Error response

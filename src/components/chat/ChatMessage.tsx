@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, Theme } from '@theme';
 import { Typography } from '@components/common';
@@ -12,6 +12,8 @@ export interface Message {
   isUser: boolean;
   timestamp: Date;
   type?: 'text' | 'transport-options';
+  actionLabel?: string;
+  onActionPress?: () => void;
 }
 
 interface ChatMessageProps {
@@ -44,6 +46,18 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           <Typography variant="body" style={message.isUser ? styles.userText : styles.aiText}>
             {message.text}
           </Typography>
+          {!message.isUser && message.actionLabel && message.onActionPress && (
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={message.onActionPress}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="car-outline" size={16} color={palette.white} />
+              <Typography variant="bodySmall" style={styles.actionButtonText}>
+                {message.actionLabel}
+              </Typography>
+            </TouchableOpacity>
+          )}
         </View>
         {message.isUser && (
           <View style={[styles.avatarContainer, styles.userAvatar]}>
@@ -136,5 +150,20 @@ const createStyles = (theme: Theme) =>
     timestampLeft: {
       alignItems: 'flex-start',
       paddingLeft: 48,
+    },
+    actionButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.colors.primary,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: 20,
+      marginTop: 10,
+      alignSelf: 'flex-start',
+      gap: 6,
+    },
+    actionButtonText: {
+      color: palette.white,
+      fontWeight: '600',
     },
   });
