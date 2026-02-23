@@ -4,7 +4,8 @@ export const TRIP_ESTIMATION_MOCK_ENABLED = false;
 // const tpLink = '192.168.1.168';
 // const work = '172.23.23.82';
 const iphone = '172.20.10.3';
-export const TRIP_ESTIMATION_URL = `http://${iphone}:8581/process/sendTrip`;
+// export const TRIP_ESTIMATION_URL = `http://${iphone}:8581/process/sendTrip`;
+export const TRIP_ESTIMATION_URL = `https://factors-candle-undertake-rebound.trycloudflare.com/process/sendTrip`;
 
 export const ASYNC_STORAGE_KEYS = {
   AUTH_TOKEN: '@QuickAssistant:authToken',

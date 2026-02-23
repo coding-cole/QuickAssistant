@@ -24,7 +24,9 @@ export default {
         },
       },
     },
+
     android: {
+      package: "com.coding_cole.quickassistant",
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',
         backgroundColor: '#ffffff',
@@ -48,6 +50,9 @@ export default {
       favicon: './assets/favicon.png',
     },
     extra: {
+      eas: {
+        projectId: "b1ef61db-cec3-4786-a9c9-cf7e61ccebfe"
+      },
       apiBaseUrl: process.env.API_BASE_URL || 'https://api.example.com',
       appEnv: process.env.APP_ENV || 'development',
       groqApiKey: process.env.GROQ_API_KEY || '',
