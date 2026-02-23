@@ -58,6 +58,7 @@ module.exports = [
         setInterval: 'readonly',
         clearInterval: 'readonly',
         React: 'readonly',
+        require: 'readonly',
       },
     },
     rules: {

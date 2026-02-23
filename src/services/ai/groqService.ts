@@ -1,39 +1,11 @@
+/**
+ * Groq AI Service — Pure extraction/AI logic only.
+ * No HTTP calls to external APIs. This service only communicates with Groq.
+ */
 import Groq from 'groq-sdk';
 import { TransportOption } from '@components/common';
-import { sendTripEstimation, TripEstimationResponse } from '@services/api/tripEstimationApi';
 import { GROQ_API_KEY } from '@config/env';
 import { getProviderColor, getProviderLogo } from '@utils/parseTransportOptions';
-
-// Types
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-}
-
-export interface ActionButton {
-  id: string;
-  label: string;
-  action: 'navigate' | 'book_ride' | 'show_calendar' | 'search';
-  params?: Record<string, any>;
-}
-
-export interface AIResponse {
-  success: boolean;
-  message: string;
-  error?: string;
-  metadata?: {
-    hasTransportOptions?: boolean;
-    transportOptions?: TransportOption[];
-    summary?: string;
-    origin?: string;
-    destination?: string;
-    hasActions?: boolean;
-    actions?: ActionButton[];
-    eventSuggestions?: string[];
-  };
-}
 
 interface ExtractedOption {
   provider: string;
@@ -49,6 +21,13 @@ interface ExtractedData {
   destination: string | null;
   options: ExtractedOption[];
   reason?: string;
+}
+
+export interface GroqExtractionResult {
+  transportOptions: TransportOption[];
+  summary: string;
+  origin: string;
+  destination: string;
 }
 
 const groqClient = new Groq({ apiKey: GROQ_API_KEY, dangerouslyAllowBrowser: true });
@@ -88,7 +67,6 @@ Field rules:
 - Exclude delivery-only options (like Send Motorbike) from the options array`;
 
 function convertToTransportOptions(extracted: ExtractedData): TransportOption[] {
-  // Filter out options missing a price (unusable without price)
   const validOptions = extracted.options.filter((opt) => opt.price !== null);
 
   const options: TransportOption[] = validOptions.map((opt) => {
@@ -110,7 +88,6 @@ function convertToTransportOptions(extracted: ExtractedData): TransportOption[] 
     };
   });
 
-  // Assign badges
   if (options.length > 0) {
     const cheapestIdx = options.reduce(
       (minIdx, opt, idx, arr) => (opt.price < arr[minIdx].price ? idx : minIdx),
@@ -132,108 +109,37 @@ function convertToTransportOptions(extracted: ExtractedData): TransportOption[] 
   return options;
 }
 
-// Trip Estimation Service
-class TripEstimationService {
-  async extractTransportOptions(
-    markdown: string
-  ): Promise<{
-    transportOptions: TransportOption[];
-    summary: string;
-    origin: string;
-    destination: string;
-  } | null> {
-    try {
-      const completion = await groqClient.chat.completions.create({
-        model: 'llama-3.1-8b-instant',
-        messages: [
-          { role: 'system', content: EXTRACTION_PROMPT },
-          { role: 'user', content: markdown },
-        ],
-        temperature: 0,
-        max_tokens: 2000,
-      });
+export async function extractTransportOptions(
+  markdown: string
+): Promise<GroqExtractionResult | null> {
+  try {
+    const completion = await groqClient.chat.completions.create({
+      model: 'llama-3.1-8b-instant',
+      messages: [
+        { role: 'system', content: EXTRACTION_PROMPT },
+        { role: 'user', content: markdown },
+      ],
+      temperature: 0,
+      max_tokens: 2000,
+    });
 
-      const content = completion.choices[0]?.message?.content?.trim();
-      if (!content) return null;
+    const content = completion.choices[0]?.message?.content?.trim();
+    if (!content) return null;
 
-      const extracted: ExtractedData = JSON.parse(content);
-      if (!extracted.options || extracted.options.length === 0) return null;
+    const extracted: ExtractedData = JSON.parse(content);
+    if (!extracted.options || extracted.options.length === 0) return null;
 
-      const transportOptions = convertToTransportOptions(extracted);
-      if (transportOptions.length === 0) return null;
+    const transportOptions = convertToTransportOptions(extracted);
+    if (transportOptions.length === 0) return null;
 
-      return {
-        transportOptions,
-        summary: extracted.summary || '',
-        origin: extracted.origin || '',
-        destination: extracted.destination || '',
-      };
-    } catch (error) {
-      console.error('[TripEstimationService] Groq extraction failed:', error);
-      return null;
-    }
-  }
-
-  async sendMessage(message: string): Promise<AIResponse> {
-    try {
-      const response: TripEstimationResponse = await sendTripEstimation({
-        messageToAI: message,
-      });
-
-      if (typeof response.httpStatus === 'number' && response.httpStatus !== 200) {
-        const fallbackMessage = `Trip estimation failed (${response.httpStatus}). Please try again.`;
-        return {
-          success: false,
-          message: fallbackMessage,
-          error: response.message || `Trip estimation error (${response.httpStatus})`,
-        };
-      }
-
-      const responseMessage = response.message || 'No response received';
-
-      // Use Groq to extract structured transport options
-      const extracted = await this.extractTransportOptions(responseMessage);
-
-      if (extracted && extracted.transportOptions.length > 0) {
-        return {
-          success: true,
-          message: responseMessage,
-          metadata: {
-            hasTransportOptions: true,
-            transportOptions: extracted.transportOptions,
-            summary: extracted.summary,
-            origin: extracted.origin,
-            destination: extracted.destination,
-          },
-        };
-      }
-
-      return {
-        success: true,
-        message: responseMessage,
-      };
-    } catch (error) {
-      console.error('[TripEstimationService] Error:', error);
-      return {
-        success: false,
-        message: 'Failed to get response. Please try again.',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
-  }
-
-  resetChat(): void {}
-
-  isReady(): boolean {
-    return true;
-  }
-
-  getStatus(): { mode: 'api'; apiKeyConfigured: boolean } {
     return {
-      mode: 'api',
-      apiKeyConfigured: !!GROQ_API_KEY,
+      transportOptions,
+      summary: extracted.summary || '',
+      origin: extracted.origin || '',
+      destination: extracted.destination || '',
     };
+  } catch (error) {
+    console.error('[GroqService] Extraction failed:', error);
+    return null;
   }
 }
-
-export const groqService = new TripEstimationService();

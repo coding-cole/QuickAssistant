@@ -7,6 +7,7 @@ import { useAppSelector, useAppDispatch, setLoading } from '@state';
 import { selectIsAuthenticated, selectAuthLoading } from '@state/selectors/authSelectors';
 import { storageService } from '@services/storage';
 import { restoreToken } from '@state/slices/authSlice';
+import { loadChatHistory } from '@state/slices/chatSlice';
 import { useLazyGetMeQuery } from '@api/authApi';
 
 import { AuthNavigator } from './AuthNavigator';
@@ -31,6 +32,7 @@ export const AppNavigator: React.FC = () => {
         ]);
 
         dispatch(restoreToken({ accessToken: token, refreshToken }));
+        dispatch(loadChatHistory());
 
         if (token) {
           try {

@@ -104,6 +104,7 @@ export const storageService = {
       await AsyncStorage.multiRemove([
         ASYNC_STORAGE_KEYS.AUTH_TOKEN,
         ASYNC_STORAGE_KEYS.REFRESH_TOKEN,
+        ASYNC_STORAGE_KEYS.CHAT_HISTORY,
       ]);
     } catch (error) {
       console.error('Error clearing auth data:', error);
