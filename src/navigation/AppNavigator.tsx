@@ -1,55 +1,19 @@
 import React, { useEffect } from 'react';
 import { NavigationContainer, DarkTheme, DefaultTheme } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '@app-types/navigation.types';
 import { useTheme } from '@theme';
-import { useAppSelector, useAppDispatch, setLoading } from '@state';
-import { selectIsAuthenticated, selectAuthLoading } from '@state/selectors/authSelectors';
-import { storageService } from '@services/storage';
-import { restoreToken } from '@state/slices/authSlice';
+import { useAppDispatch } from '@state';
 import { loadChatHistory } from '@state/slices/chatSlice';
-import { useLazyGetMeQuery } from '@api/authApi';
 
-import { AuthNavigator } from './AuthNavigator';
 import { MainNavigator } from './MainNavigator';
-import { LoadingScreen } from '@components/common/LoadingScreen';
-
-const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const AppNavigator: React.FC = () => {
   const { theme } = useTheme();
   const dispatch = useAppDispatch();
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  const isLoading = useAppSelector(selectAuthLoading);
-  const [triggerGetMe] = useLazyGetMeQuery();
 
   useEffect(() => {
-    const bootstrapAsync = async () => {
-      try {
-        const [token, refreshToken] = await Promise.all([
-          storageService.getAuthToken(),
-          storageService.getRefreshToken(),
-        ]);
-
-        dispatch(restoreToken({ accessToken: token, refreshToken }));
-        dispatch(loadChatHistory());
-
-        if (token) {
-          try {
-            await triggerGetMe().unwrap();
-          } catch {
-            await storageService.clearAuthData();
-          }
-        }
-      } catch {
-        dispatch(setLoading(false));
-      }
-    };
-
-    bootstrapAsync();
+    dispatch(loadChatHistory());
   }, [dispatch]);
 
-  // Create navigation theme from app theme
   const navigationTheme = theme.isDark
     ? {
         ...DarkTheme,
@@ -76,19 +40,9 @@ export const AppNavigator: React.FC = () => {
         },
       };
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
   return (
     <NavigationContainer theme={navigationTheme}>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {isAuthenticated ? (
-          <Stack.Screen name="Main" component={MainNavigator} />
-        ) : (
-          <Stack.Screen name="Auth" component={AuthNavigator} />
-        )}
-      </Stack.Navigator>
+      <MainNavigator />
     </NavigationContainer>
   );
 };

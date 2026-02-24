@@ -10,9 +10,10 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, Theme } from '@theme';
 import { ChatMessage, ChatInput, Message } from '@components/chat';
@@ -43,8 +44,11 @@ const ChatScreen: React.FC = () => {
   const { theme } = useTheme();
   const route = useRoute<ChatScreenRouteProp>();
   const navigation = useNavigation<ChatScreenNavigationProp>();
+  const insets = useSafeAreaInsets();
+  const headerHeight = useHeaderHeight();
   const dispatch = useAppDispatch();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? headerHeight + insets.top : 0;
 
   const storedMessages = useAppSelector(selectChatMessages);
   const [isTyping, setIsTyping] = useState(false);
@@ -273,8 +277,8 @@ const ChatScreen: React.FC = () => {
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <KeyboardAvoidingView
         style={styles.chatContainer}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={keyboardVerticalOffset}
       >
         <FlatList
           ref={flatListRef}

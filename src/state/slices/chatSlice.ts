@@ -1,8 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { storageService } from '@services/storage/storageService';
 import { ASYNC_STORAGE_KEYS } from '@config/constants';
-import { logout } from './authSlice';
-import { authApi } from '@api/authApi';
 
 export interface SerializableMessage {
   id: string;
@@ -52,18 +50,9 @@ const chatSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder
-      .addCase(loadChatHistory.fulfilled, (state, action) => {
-        state.messages = action.payload;
-      })
-      .addCase(logout, (state) => {
-        state.messages = [];
-        storageService.removeItem(ASYNC_STORAGE_KEYS.CHAT_HISTORY);
-      })
-      .addMatcher(authApi.endpoints.logout.matchFulfilled, (state) => {
-        state.messages = [];
-        storageService.removeItem(ASYNC_STORAGE_KEYS.CHAT_HISTORY);
-      });
+    builder.addCase(loadChatHistory.fulfilled, (state, action) => {
+      state.messages = action.payload;
+    });
   },
 });
 

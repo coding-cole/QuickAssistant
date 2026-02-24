@@ -10,7 +10,12 @@
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { baseApi } from '@api/baseApi';
 import { TRIP_ESTIMATION_TOKEN } from '@config/env';
-import { TRIP_ESTIMATION_MOCK_ENABLED, TRIP_ESTIMATION_URL } from '@/config';
+import {
+  TRIP_ESTIMATION_MOCK_ENABLED,
+  TRIP_ESTIMATION_BASE_URL_DEFAULT,
+  TRIP_ESTIMATION_PATH,
+} from '@/config';
+import { storageService } from '@services/storage';
 
 export interface TripEstimationRequestPayload {
   messageToAI: string;
@@ -46,7 +51,7 @@ const TRIP_HEADERS: Record<string, string> = {
 
 /**
  * Dedicated base query for the trip estimation API.
- * Uses no baseUrl (TRIP_ESTIMATION_URL is a full URL) and applies its own headers
+ * Uses no baseUrl (full URL is built at call time) and applies its own headers
  * so the shared baseApi prepareHeaders doesn't overwrite Authorization.
  */
 const tripBaseQuery = fetchBaseQuery({
@@ -82,13 +87,17 @@ export const tripEstimationApi = baseApi.injectEndpoints({
           return { data: MOCK_TRIP_ESTIMATION_RESPONSE };
         }
 
+        const savedBaseUrl = await storageService.getEstimationBaseUrl();
+        const baseUrl = savedBaseUrl?.trim() || TRIP_ESTIMATION_BASE_URL_DEFAULT;
+        const fullUrl = `${baseUrl}${TRIP_ESTIMATION_PATH}`;
+
         const headers: Record<string, string> = {};
         if (origin) headers['origin'] = origin;
         if (destination) headers['destination'] = destination;
 
         const result = await tripBaseQuery(
           {
-            url: TRIP_ESTIMATION_URL,
+            url: fullUrl,
             method: 'POST',
             body: { messageToAI },
             headers,

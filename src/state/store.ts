@@ -1,10 +1,9 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { baseApi } from '@api/baseApi';
-import { authReducer, uiReducer, chatReducer } from './slices';
+import { uiReducer, chatReducer } from './slices';
 
 const rootReducer = combineReducers({
-  auth: authReducer,
   ui: uiReducer,
   chat: chatReducer,
   [baseApi.reducerPath]: baseApi.reducer,

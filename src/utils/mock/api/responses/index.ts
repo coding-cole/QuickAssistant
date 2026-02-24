@@ -5,15 +5,6 @@
  * and mock server configuration.
  */
 
-// Auth Responses
-export {
-  loginMockedResponse,
-  registerMockedResponse,
-  logoutMockedResponse,
-  loginErrorResponse,
-  registerErrorResponse,
-} from './authResponses';
-
 // User Responses
 export {
   getProfileMockedResponse,

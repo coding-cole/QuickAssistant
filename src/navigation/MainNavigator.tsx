@@ -9,7 +9,7 @@ import { HomeNavigator } from './HomeNavigator';
 
 // Screens
 import RideHistoryScreen from '@screens/Rides/RideHistoryScreen';
-import ProfileScreen from '@screens/Profile/ProfileScreen';
+import SettingsScreen from '@screens/Settings/SettingsScreen';
 import MapScreen from '@screens/Map/MapScreen';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -40,8 +40,8 @@ export const MainNavigator: React.FC = () => {
             case 'RideHistory':
               iconName = focused ? 'car' : 'car-outline';
               break;
-            case 'Profile':
-              iconName = focused ? 'person' : 'person-outline';
+            case 'Settings':
+              iconName = focused ? 'settings' : 'settings-outline';
               break;
             default:
               iconName = 'ellipse';
@@ -58,7 +58,11 @@ export const MainNavigator: React.FC = () => {
         component={RideHistoryScreen}
         options={{ tabBarLabel: 'Rides' }}
       />
-      <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: 'Profile' }} />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ tabBarLabel: 'Settings' }}
+      />
     </Tab.Navigator>
   );
 };
