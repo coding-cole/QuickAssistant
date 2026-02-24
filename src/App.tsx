@@ -7,9 +7,6 @@ import { store } from '@state/store';
 import { ThemeProvider, useTheme } from '@theme';
 import { AppNavigator } from '@navigation';
 import { ErrorBoundary } from '@components/common';
-import { enableMocking } from '@utils/mock/api/server';
-
-enableMocking();
 
 const AppContent: React.FC = () => {
   const { theme } = useTheme();
