@@ -5,14 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme, Theme } from '@theme';
 import { Typography, NotificationCard, Notification } from '@components/common';
-import { mockNotifications } from '@utils/mock/data';
 
 const NotificationsScreen: React.FC = () => {
   const { theme } = useTheme();
   const navigation = useNavigation();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const unreadCount = useMemo(
@@ -22,9 +21,7 @@ const NotificationsScreen: React.FC = () => {
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    setNotifications(mockNotifications);
     setIsRefreshing(false);
   }, []);
 

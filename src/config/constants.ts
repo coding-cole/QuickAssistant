@@ -1,5 +1,4 @@
 export const APP_NAME = 'QuickAssistant';
-export const TRIP_ESTIMATION_MOCK_ENABLED = false;
 
 export const TRIP_ESTIMATION_BASE_URL_DEFAULT = `https://thumbzilla-proceed-solaris-earthquake.trycloudflare.com`;
 export const TRIP_ESTIMATION_PATH = `/process/sendTrip`;

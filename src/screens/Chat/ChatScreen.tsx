@@ -17,6 +17,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, Theme } from '@theme';
 import { ChatMessage, ChatInput, Message } from '@components/chat';
+import { Typography } from '@components/common';
 import { HomeStackParamList } from '@app-types/navigation.types';
 import { tripEstimationService } from '@services/ai';
 import { useAppDispatch, useAppSelector } from '@state/store';
@@ -306,8 +307,19 @@ const ChatScreen: React.FC = () => {
         <ChatInput
           onSend={handleSend}
           disabled={isTyping}
-          placeholder="Ask me anything about Lagos transport..."
+          placeholder="Where are you headed? Get fare estimates across platforms instantly"
         />
+        <View style={styles.caveat}>
+          <Ionicons
+            name="warning-outline"
+            size={11}
+            color={theme.colors.textSecondary}
+            style={styles.caveatIcon}
+          />
+          <Typography variant="caption" color="secondary" style={styles.caveatText}>
+            Fares may vary due to surge pricing, promotions, or account-based personalization.
+          </Typography>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -352,6 +364,20 @@ const createStyles = (theme: Theme) =>
     },
     typingDotMiddle: {
       opacity: 0.7,
+    },
+    caveat: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      paddingHorizontal: theme.spacing.md,
+      paddingBottom: theme.spacing.xs,
+      gap: 4,
+    },
+    caveatIcon: {
+      marginTop: 1,
+    },
+    caveatText: {
+      flex: 1,
+      fontSize: 10,
     },
   });
 

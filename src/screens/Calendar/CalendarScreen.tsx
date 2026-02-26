@@ -9,11 +9,6 @@ import { CalendarHeader, CalendarGrid, EventCard } from '@components/calendar';
 import { HomeStackParamList } from '@app-types/navigation.types';
 import { CalendarEvent } from '@app-types/calendar.types';
 import {
-  mockCalendarEvents,
-  getEventsForDate,
-  getRelativeDayLabel,
-} from '@utils/mock/data/calendarData';
-import {
   addMonths,
   subMonths,
   addWeeks,
@@ -24,6 +19,9 @@ import {
   endOfMonth,
   startOfWeek,
   endOfWeek,
+  isToday,
+  isTomorrow,
+  isYesterday,
 } from 'date-fns';
 
 export type CalendarParams = {
@@ -62,7 +60,7 @@ const CalendarScreen: React.FC = () => {
       end = endOfWeek(currentDate, { weekStartsOn: 0 });
     }
 
-    return mockCalendarEvents.filter((event) => {
+    return ([] as CalendarEvent[]).filter((event) => {
       const eventDate = parseISO(event.startTime);
       return eventDate >= start && eventDate <= end;
     });
@@ -70,7 +68,7 @@ const CalendarScreen: React.FC = () => {
 
   // Get events for selected date
   const selectedDateEvents = useMemo(() => {
-    return getEventsForDate(selectedDate).sort(
+    return ([] as CalendarEvent[]).sort(
       (a, b) => parseISO(a.startTime).getTime() - parseISO(b.startTime).getTime()
     );
   }, [selectedDate]);
@@ -159,7 +157,13 @@ const CalendarScreen: React.FC = () => {
   const renderListHeader = () => (
     <View style={styles.listHeader}>
       <Typography variant="h4" style={styles.listHeaderTitle}>
-        {getRelativeDayLabel(format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss"))}
+        {isToday(selectedDate)
+          ? 'Today'
+          : isTomorrow(selectedDate)
+            ? 'Tomorrow'
+            : isYesterday(selectedDate)
+              ? 'Yesterday'
+              : format(selectedDate, 'EEEE, MMMM d')}
       </Typography>
       <Typography variant="caption" color="secondary">
         {selectedDateEvents.length} event{selectedDateEvents.length !== 1 ? 's' : ''}

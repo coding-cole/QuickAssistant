@@ -15,6 +15,7 @@ export default {
       backgroundColor: '#ffffff',
     },
     ios: {
+      bundleIdentifier: "com.coding-cole.quickassistant",
       supportsTablet: true,
       infoPlist: {
         LSApplicationQueriesSchemes: ['uber', 'bolt'],

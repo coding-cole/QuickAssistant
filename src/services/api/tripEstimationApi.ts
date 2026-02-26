@@ -10,11 +10,7 @@
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { baseApi } from '@api/baseApi';
 import { TRIP_ESTIMATION_TOKEN } from '@config/env';
-import {
-  TRIP_ESTIMATION_MOCK_ENABLED,
-  TRIP_ESTIMATION_BASE_URL_DEFAULT,
-  TRIP_ESTIMATION_PATH,
-} from '@/config';
+import { TRIP_ESTIMATION_BASE_URL_DEFAULT, TRIP_ESTIMATION_PATH } from '@/config';
 import { storageService } from '@services/storage';
 
 export interface TripEstimationRequestPayload {
@@ -63,50 +59,41 @@ const tripBaseQuery = fetchBaseQuery({
   },
 });
 
-const MOCK_TRIP_ESTIMATION_RESPONSE: TripEstimationResponse = {
-  code: 0,
-  httpStatus: 200,
-  message:
-    "Here's the comparison for your trip:\n\n**Route:**  \n84 Ozumba Mbadiwe Avenue, Victoria Island, Lagos \u2192 14 Bexley Court, Dauda Fasanya Street, Ikate Elegushi, Lagos  \n**Currency:** NGN (\u20A6)\n\n---\n\n### Uber options\n- **UberX**\n  - Price: **\u20A64,200** (promo applied; original **\u20A65,000**)\n  - ETA: **5 min**\n  - Seats: **4**\n\n- **Select**\n  - Price: **\u20A66,700**\n  - ETA: **6 min**\n  - Seats: **4**\n  - Note: More comfortable cars\n\n**Cheapest on Uber:** **UberX \u2013 \u20A64,200** (with 20% promo)\n\n---\n\n### Bolt options\n- **Basic** (marked \u201ccheapest\u201d)\n  - Price: **\u20A64,600**\n  - ETA: **3 min**\n  - Seats: **3**\n\n- **Bolt**\n  - Price: **\u20A65,200**\n  - ETA: **8 min**\n  - Seats: **4**\n\n- **Comfort**\n  - Price: **\u20A65,400**\n  - ETA: **9 min**\n  - Seats: **4**\n\n- **Send Motorbike** (delivery, not passenger)\n  - Price: **\u20A62,500**\n  - ETA: **5 min**\n  - Seats: **0** (for parcels, not riders)\n\n**Cheapest passenger option on Bolt:** **Basic \u2013 \u20A64,600**",
-  voiceMessage:
-    'UberX is currently the cheapest suitable option at \u20A64,200 with 4 seats and a 5-minute arrival.',
-  dataType: null,
-  data: null,
-  preListMessage: null,
-  postListMessage: null,
-  postListDataType: null,
-  postListData: null,
-};
-
 export const tripEstimationApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     sendTrip: builder.mutation<TripEstimationResponse, TripEstimationRequestPayload>({
       queryFn: async ({ messageToAI, origin = '', destination = '' }, api) => {
-        if (TRIP_ESTIMATION_MOCK_ENABLED) {
-          console.warn('[TripEstimationAPI] Mock enabled - returning mock response.');
-          return { data: MOCK_TRIP_ESTIMATION_RESPONSE };
-        }
-
         const savedBaseUrl = await storageService.getEstimationBaseUrl();
         const baseUrl = savedBaseUrl?.trim() || TRIP_ESTIMATION_BASE_URL_DEFAULT;
         const fullUrl = `${baseUrl}${TRIP_ESTIMATION_PATH}`;
 
-        const headers: Record<string, string> = {};
-        if (origin) headers['origin'] = origin;
-        if (destination) headers['destination'] = destination;
+        const extraHeaders: Record<string, string> = {};
+        if (origin) extraHeaders['origin'] = origin;
+        if (destination) extraHeaders['destination'] = destination;
+
+        console.log('[Trip API Request]', {
+          url: fullUrl,
+          method: 'POST',
+          headers: { ...TRIP_HEADERS, ...extraHeaders },
+          body: { messageToAI },
+        });
 
         const result = await tripBaseQuery(
           {
             url: fullUrl,
             method: 'POST',
             body: { messageToAI },
-            headers,
+            headers: extraHeaders,
           },
           api,
           {}
         );
 
         if (result.error) {
+          console.log('[Trip API Response Error]', {
+            status: result.meta?.response?.status,
+            error: result.error,
+          });
           return {
             data: {
               code: typeof result.error.status === 'number' ? result.error.status : -1,
@@ -117,6 +104,11 @@ export const tripEstimationApi = baseApi.injectEndpoints({
             },
           };
         }
+
+        console.log('[Trip API Response]', {
+          status: result.meta?.response?.status,
+          data: result.data,
+        });
 
         return { data: result.data as TripEstimationResponse };
       },

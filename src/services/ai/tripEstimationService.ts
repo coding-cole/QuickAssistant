@@ -30,8 +30,6 @@ class TripEstimationService {
         .dispatch(tripEstimationApi.endpoints.sendTrip.initiate({ messageToAI: message }))
         .unwrap();
 
-      console.warn('[TripEstimationService] Raw API response:', JSON.stringify(result, null, 2));
-
       if (typeof result.httpStatus === 'number' && result.httpStatus !== 200) {
         return {
           success: false,

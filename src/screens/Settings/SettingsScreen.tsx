@@ -7,8 +7,18 @@ import { Typography, Card } from '@components/common';
 import { storageService } from '@services/storage';
 import { TRIP_ESTIMATION_BASE_URL_DEFAULT } from '@config/constants';
 
+const THEME_OPTIONS: {
+  mode: 'light' | 'dark' | 'system';
+  label: string;
+  icon: keyof typeof Ionicons.glyphMap;
+}[] = [
+  { mode: 'light', label: 'Light', icon: 'sunny-outline' },
+  { mode: 'dark', label: 'Dark', icon: 'moon-outline' },
+  { mode: 'system', label: 'System', icon: 'phone-portrait-outline' },
+];
+
 const SettingsScreen: React.FC = () => {
-  const { theme } = useTheme();
+  const { theme, themeMode, setThemeMode } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   const [baseUrl, setBaseUrl] = useState('');
@@ -64,6 +74,42 @@ const SettingsScreen: React.FC = () => {
         <View style={styles.header}>
           <Typography variant="h2">Settings</Typography>
         </View>
+
+        <Card style={styles.card}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionIcon}>
+              <Ionicons name="color-palette-outline" size={20} color={theme.colors.primary} />
+            </View>
+            <Typography variant="h4">Appearance</Typography>
+          </View>
+
+          <View style={styles.themeOptions}>
+            {THEME_OPTIONS.map((option) => {
+              const isSelected = themeMode === option.mode;
+              return (
+                <TouchableOpacity
+                  key={option.mode}
+                  style={[styles.themeOption, isSelected && styles.themeOptionSelected]}
+                  onPress={() => setThemeMode(option.mode)}
+                  accessibilityLabel={`${option.label} theme`}
+                  accessibilityState={{ selected: isSelected }}
+                >
+                  <Ionicons
+                    name={option.icon}
+                    size={20}
+                    color={isSelected ? theme.colors.primary : theme.colors.textSecondary}
+                  />
+                  <Typography
+                    variant="bodySmall"
+                    style={[styles.themeOptionLabel, isSelected && styles.themeOptionLabelSelected]}
+                  >
+                    {option.label}
+                  </Typography>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </Card>
 
         <Card style={styles.card}>
           <View style={styles.sectionHeader}>
@@ -198,6 +244,29 @@ const createStyles = (theme: Theme) =>
     },
     version: {
       marginTop: theme.spacing.lg,
+    },
+    themeOptions: {
+      flexDirection: 'row',
+      gap: theme.spacing.sm,
+    },
+    themeOption: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: theme.spacing.sm,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      gap: theme.spacing.xs,
+    },
+    themeOptionSelected: {
+      borderColor: theme.colors.primary,
+      backgroundColor: theme.colors.primary + '15',
+    },
+    themeOptionLabel: {
+      color: theme.colors.textSecondary,
+    },
+    themeOptionLabelSelected: {
+      color: theme.colors.primary,
     },
   });
 

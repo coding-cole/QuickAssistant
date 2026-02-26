@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, Theme } from '@theme';
 import { Typography, TransactionCard, Transaction, TransactionStatus } from '@components/common';
-import { mockTransactions } from '@utils/mock/data';
 
 type FilterOption = 'all' | TransactionStatus;
 
@@ -26,7 +25,7 @@ const TransactionHistoryScreen: React.FC = () => {
 
   const [filterStatus, setFilterStatus] = useState<FilterOption>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const filteredTransactions = useMemo(() => {
     if (filterStatus === 'all') {
@@ -39,7 +38,6 @@ const TransactionHistoryScreen: React.FC = () => {
     setIsRefreshing(true);
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    setTransactions(mockTransactions);
     setIsRefreshing(false);
   }, []);
 

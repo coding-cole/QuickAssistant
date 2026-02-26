@@ -15,7 +15,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme, Theme } from '@theme';
 import { Typography, Card } from '@components/common';
 import { HomeStackParamList } from '@app-types/navigation.types';
-import { getUnreadCount } from '@utils/mock/data';
 
 type HomeNavigationProp = NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>;
 
@@ -27,6 +26,12 @@ interface FeatureCard {
 }
 
 const FEATURE_CARDS: FeatureCard[] = [
+  {
+    id: 'assistant',
+    icon: 'hardware-chip-outline',
+    title: 'AI Assistant',
+    description: 'Your personal mobility companion for Lagos',
+  },
   {
     id: 'navigation',
     icon: 'navigate-outline',
@@ -45,12 +50,6 @@ const FEATURE_CARDS: FeatureCard[] = [
     title: 'Quick Booking',
     description: 'Book rides instantly with Bolt, Uber, inDrive, BRT, and Metro',
   },
-  {
-    id: 'assistant',
-    icon: 'hardware-chip-outline',
-    title: 'AI Assistant',
-    description: 'Your personal mobility companion for Lagos',
-  },
 ];
 
 const QUICK_PROMPTS = [
@@ -61,23 +60,12 @@ const QUICK_PROMPTS = [
 ];
 
 const HomeMainScreen: React.FC = () => {
-  const { theme, toggleTheme, themeMode } = useTheme();
+  const { theme } = useTheme();
   const navigation = useNavigation<HomeNavigationProp>();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const [inputText, setInputText] = useState('');
 
-  const notificationCount = getUnreadCount();
-
-  const getThemeModeIcon = (): keyof typeof Ionicons.glyphMap => {
-    switch (themeMode) {
-      case 'light':
-        return 'sunny-outline';
-      case 'dark':
-        return 'moon-outline';
-      default:
-        return 'phone-portrait-outline';
-    }
-  };
+  const notificationCount = 0;
 
   const handleSendMessage = useCallback(() => {
     if (inputText.trim()) {
@@ -145,13 +133,6 @@ const HomeMainScreen: React.FC = () => {
                   </Typography>
                 </View>
               )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerIcon}
-              onPress={toggleTheme}
-              accessibilityLabel={`Current theme: ${themeMode}. Tap to change.`}
-            >
-              <Ionicons name={getThemeModeIcon()} size={22} color={theme.colors.textSecondary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -226,12 +207,6 @@ const HomeMainScreen: React.FC = () => {
         {/* Bottom Chat Input */}
         <View style={styles.chatInputContainer}>
           <View style={styles.chatInputWrapper}>
-            <TouchableOpacity style={styles.inputIcon} accessibilityLabel="Voice input">
-              <Ionicons name="mic-outline" size={22} color={theme.colors.textSecondary} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.inputIcon} accessibilityLabel="Attach file">
-              <Ionicons name="attach-outline" size={22} color={theme.colors.textSecondary} />
-            </TouchableOpacity>
             <TextInput
               style={styles.textInput}
               placeholder="Where would you like to go?"

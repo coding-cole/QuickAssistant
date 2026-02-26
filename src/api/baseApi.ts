@@ -1,33 +1,22 @@
 import { createApi, fetchBaseQuery, BaseQueryFn } from '@reduxjs/toolkit/query/react';
 import type { FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { API_BASE_URL, IS_DEV } from '@config/env';
-import type { RootState } from '@state/store';
+import { API_BASE_URL } from '@config/env';
 import { normalizeApiError } from '@utils/apiErrors';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: API_BASE_URL,
-  prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as RootState).auth.accessToken;
-    if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
-    }
+  prepareHeaders: (headers) => {
     headers.set('Content-Type', 'application/json');
     return headers;
   },
 });
 
-const formatRequestLog = (args: string | FetchArgs) => {
-  if (typeof args === 'string') {
-    return { url: args, method: 'GET' };
-  }
-
-  const { url, method = 'GET', params, body } = args;
-  return {
-    url,
-    method,
-    params,
-    body,
-  };
+const headersToObject = (headers: globalThis.Headers): Record<string, string> => {
+  const result: Record<string, string> = {};
+  headers.forEach((value, key) => {
+    result[key] = value;
+  });
+  return result;
 };
 
 const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
@@ -35,36 +24,44 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
   api,
   extraOptions
 ) => {
-  if (IS_DEV) {
-    const requestLog = formatRequestLog(args);
-    console.warn('[API Request]', requestLog);
-  }
+  const isString = typeof args === 'string';
+  const url = isString ? args : args.url;
+  const method = isString ? 'GET' : (args.method ?? 'GET');
+  const body = isString ? undefined : args.body;
+  const params = isString ? undefined : args.params;
+  const customHeaders = isString ? undefined : args.headers;
+
+  console.log('[API Request]', {
+    url: `${API_BASE_URL}${url}`,
+    method,
+    ...(params && { params }),
+    ...(body && { body }),
+    headers: {
+      'content-type': 'application/json',
+      ...(typeof customHeaders === 'object' && customHeaders !== null ? customHeaders : {}),
+    },
+  });
 
   let result = await baseQuery(args, api, extraOptions);
 
+  const status = result.meta?.response?.status;
+  const responseHeaders = result.meta?.response?.headers
+    ? headersToObject(result.meta.response.headers)
+    : {};
+
   if (result.error) {
-    result = {
-      ...result,
-      error: normalizeApiError(result.error),
-    };
-  }
-
-  if (IS_DEV) {
-    if (result.error) {
-      console.warn('[API Response Error]', {
-        status: result.error.status,
-        data: result.error.data,
-        error: 'error' in result.error ? result.error.error : undefined,
-      });
-    } else {
-      console.warn('[API Response]', result.data);
-    }
-  }
-
-  if (result.error && result.error.status === 401) {
-    // TODO: Implement token refresh logic here
-    // For now, we'll just return the error
-    // You could dispatch a logout action here
+    result = { ...result, error: normalizeApiError(result.error) };
+    console.log('[API Response Error]', {
+      status,
+      headers: responseHeaders,
+      error: result.error,
+    });
+  } else {
+    console.log('[API Response]', {
+      status,
+      headers: responseHeaders,
+      data: result.data,
+    });
   }
 
   return result;
@@ -73,6 +70,6 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['User', 'Auth'],
+  tagTypes: ['User'],
   endpoints: () => ({}),
 });

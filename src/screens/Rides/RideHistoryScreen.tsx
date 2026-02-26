@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, Theme } from '@theme';
 import { Typography, RideCard, Ride, RideStatus } from '@components/common';
-import { mockRides } from '@utils/mock/data';
 
 type FilterOption = 'all' | RideStatus;
 
@@ -26,7 +25,7 @@ const RideHistoryScreen: React.FC = () => {
 
   const [filterStatus, setFilterStatus] = useState<FilterOption>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [rides, setRides] = useState<Ride[]>(mockRides);
+  const [rides, setRides] = useState<Ride[]>([]);
 
   const filteredRides = useMemo(() => {
     if (filterStatus === 'all') {
@@ -39,7 +38,6 @@ const RideHistoryScreen: React.FC = () => {
     setIsRefreshing(true);
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    setRides(mockRides);
     setIsRefreshing(false);
   }, []);
 

@@ -1,13 +1,5 @@
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import {
-  Alert,
-  View,
-  StyleSheet,
-  FlatList,
-  RefreshControl,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
+import React, { useMemo, useState, useCallback } from 'react';
+import { Alert, View, StyleSheet, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, RouteProp, StackActions } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -15,7 +7,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme, Theme } from '@theme';
 import { Typography, TransportCard, TransportOption } from '@components/common';
 import { HomeStackParamList } from '@app-types/navigation.types';
-import { getTransportOptionsForRoute } from '@utils/mock/data';
 import { formatRelativeTime } from '@utils/formatters';
 import { rideAppsService, RideAppProvider, RideAppParams } from '@services/rideApps';
 
@@ -32,8 +23,6 @@ type PriceComparisonNavigationProp = NativeStackNavigationProp<
   'PriceComparison'
 >;
 
-const AUTO_REFRESH_INTERVAL = 30000; // 30 seconds
-
 const PriceComparisonScreen: React.FC = () => {
   const { theme } = useTheme();
   const route = useRoute<PriceComparisonRouteProp>();
@@ -42,47 +31,14 @@ const PriceComparisonScreen: React.FC = () => {
 
   const {
     origin = 'Current Location',
-    destination = 'Lekki',
+    destination = 'Destination',
     transportOptions: passedOptions,
     lastQuery,
   } = route.params || {};
 
-  const hasPassedOptions = !!passedOptions?.length;
-
-  const [transportOptions, setTransportOptions] = useState<TransportOption[]>(passedOptions ?? []);
-  const [isLoading, setIsLoading] = useState(!hasPassedOptions);
+  const [transportOptions] = useState<TransportOption[]>(passedOptions ?? []);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-
-  const fetchOptions = useCallback(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    const options = getTransportOptionsForRoute(origin, destination);
-    setTransportOptions(options);
-    setLastUpdated(new Date());
-  }, [origin, destination]);
-
-  // Only fetch mock data if no options were passed from chat
-  useEffect(() => {
-    if (hasPassedOptions) return;
-
-    const loadInitialData = async () => {
-      setIsLoading(true);
-      await fetchOptions();
-      setIsLoading(false);
-    };
-    loadInitialData();
-  }, [fetchOptions, hasPassedOptions]);
-
-  // Auto-refresh only when using mock data
-  useEffect(() => {
-    if (hasPassedOptions) return;
-
-    const interval = setInterval(async () => {
-      await fetchOptions();
-    }, AUTO_REFRESH_INTERVAL);
-
-    return () => clearInterval(interval);
-  }, [fetchOptions, hasPassedOptions]);
+  const [lastUpdated] = useState<Date>(new Date());
 
   const handleRefresh = useCallback(() => {
     if (lastQuery) {
@@ -94,9 +50,9 @@ const PriceComparisonScreen: React.FC = () => {
       );
     } else {
       setIsRefreshing(true);
-      fetchOptions().then(() => setIsRefreshing(false));
+      setTimeout(() => setIsRefreshing(false), 500);
     }
-  }, [lastQuery, navigation, fetchOptions]);
+  }, [lastQuery, navigation]);
 
   const handleBookPress = useCallback(
     (option: TransportOption) => {
@@ -146,21 +102,34 @@ const PriceComparisonScreen: React.FC = () => {
 
   const renderHeader = useCallback(
     () => (
-      <View style={styles.routeInfo}>
-        <View style={styles.routeRow}>
-          <Ionicons name="location" size={20} color={theme.colors.success} />
-          <Typography variant="body" style={styles.routeText}>
-            {origin}
+      <>
+        <View style={styles.routeInfo}>
+          <View style={styles.routeRow}>
+            <Ionicons name="location" size={20} color={theme.colors.success} />
+            <Typography variant="body" style={styles.routeText}>
+              {origin}
+            </Typography>
+          </View>
+          <View style={styles.routeDivider} />
+          <View style={styles.routeRow}>
+            <Ionicons name="flag" size={20} color={theme.colors.error} />
+            <Typography variant="body" style={styles.routeText}>
+              {destination}
+            </Typography>
+          </View>
+        </View>
+        <View style={styles.caveat}>
+          <Ionicons
+            name="warning-outline"
+            size={11}
+            color={theme.colors.textSecondary}
+            style={styles.caveatIcon}
+          />
+          <Typography variant="caption" color="secondary" style={styles.caveatText}>
+            Fares may vary due to surge pricing, promotions, or account-based personalization.
           </Typography>
         </View>
-        <View style={styles.routeDivider} />
-        <View style={styles.routeRow}>
-          <Ionicons name="flag" size={20} color={theme.colors.error} />
-          <Typography variant="body" style={styles.routeText}>
-            {destination}
-          </Typography>
-        </View>
-      </View>
+      </>
     ),
     [origin, destination, styles, theme]
   );
@@ -187,19 +156,6 @@ const PriceComparisonScreen: React.FC = () => {
     ),
     [lastUpdated, handleRefresh, isRefreshing, styles, theme]
   );
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.container} edges={['bottom']}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Typography variant="body" color="secondary" style={styles.loadingText}>
-            Finding best options...
-          </Typography>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -239,14 +195,6 @@ const createStyles = (theme: Theme) =>
       flex: 1,
       backgroundColor: theme.colors.background,
     },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    loadingText: {
-      marginTop: theme.spacing.md,
-    },
     listContent: {
       padding: theme.spacing.md,
     },
@@ -272,6 +220,20 @@ const createStyles = (theme: Theme) =>
       backgroundColor: theme.colors.border,
       marginLeft: 9,
       marginVertical: theme.spacing.xs,
+    },
+    caveat: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      paddingHorizontal: theme.spacing.xs,
+      marginBottom: theme.spacing.md,
+      gap: 4,
+    },
+    caveatIcon: {
+      marginTop: 1,
+    },
+    caveatText: {
+      flex: 1,
+      fontSize: 10,
     },
     footer: {
       flexDirection: 'row',

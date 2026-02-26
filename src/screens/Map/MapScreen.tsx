@@ -5,18 +5,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme, Theme } from '@theme';
-import { Typography, Card } from '@components/common';
+import { Typography } from '@components/common';
 import { LocationSearchBar, SavedPlaceCard, LocationListItem } from '@components/map';
 import { HomeStackParamList } from '@app-types/navigation.types';
 import { Location, SavedPlace } from '@app-types/map.types';
-import {
-  mockRecentLocations,
-  mockSavedPlaces,
-  searchLocations,
-  POPULAR_LOCATIONS,
-  mockTrafficInfo,
-  getTrafficLevelColor,
-} from '@utils/mock/data/mapData';
 
 type MapNavigationProp = NativeStackNavigationProp<HomeStackParamList>;
 
@@ -33,12 +25,7 @@ const MapScreen: React.FC = () => {
 
   const handleSearchChange = useCallback((text: string) => {
     setSearchQuery(text);
-    if (text.length > 1) {
-      const results = searchLocations(text);
-      setSearchResults(results);
-    } else {
-      setSearchResults([]);
-    }
+    setSearchResults([]);
   }, []);
 
   const handleSearchFocus = useCallback(() => {
@@ -98,7 +85,7 @@ const MapScreen: React.FC = () => {
             Recent Searches
           </Typography>
           <FlatList
-            data={mockRecentLocations}
+            data={[]}
             renderItem={renderLocationItem}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
@@ -127,37 +114,6 @@ const MapScreen: React.FC = () => {
       </View>
     </View>
   );
-
-  const renderTrafficInfo = () => {
-    const trafficItems = Object.entries(mockTrafficInfo).slice(0, 3);
-
-    return (
-      <Card style={styles.trafficCard}>
-        <View style={styles.trafficHeader}>
-          <Ionicons name="car" size={20} color={theme.colors.text} />
-          <Typography variant="body" style={styles.trafficTitle}>
-            Traffic Updates
-          </Typography>
-        </View>
-        {trafficItems.map(([key, info]) => (
-          <View key={key} style={styles.trafficItem}>
-            <View
-              style={[
-                styles.trafficIndicator,
-                { backgroundColor: getTrafficLevelColor(info.level) },
-              ]}
-            />
-            <View style={styles.trafficContent}>
-              <Typography variant="bodySmall">{info.description}</Typography>
-              <Typography variant="caption" color="secondary">
-                +{info.estimatedDelay} min delay
-              </Typography>
-            </View>
-          </View>
-        ))}
-      </Card>
-    );
-  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -197,7 +153,7 @@ const MapScreen: React.FC = () => {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.savedPlacesContainer}
             >
-              {mockSavedPlaces.map((place) => (
+              {([] as SavedPlace[]).map((place) => (
                 <SavedPlaceCard
                   key={place.id}
                   place={place}
@@ -214,15 +170,12 @@ const MapScreen: React.FC = () => {
           {/* Map Placeholder */}
           {renderMapPlaceholder()}
 
-          {/* Traffic Updates */}
-          {renderTrafficInfo()}
-
           {/* Popular Destinations */}
           <View style={styles.section}>
             <Typography variant="bodySmall" color="secondary" style={styles.sectionLabel}>
               Popular Destinations
             </Typography>
-            {POPULAR_LOCATIONS.slice(0, 5).map((location) => (
+            {([] as Location[]).map((location) => (
               <LocationListItem
                 key={location.id}
                 location={location}
@@ -330,36 +283,6 @@ const createStyles = (theme: Theme) =>
       height: 50,
       borderWidth: 0.5,
       borderColor: theme.colors.border,
-    },
-    trafficCard: {
-      marginHorizontal: theme.spacing.md,
-      marginTop: theme.spacing.md,
-      padding: theme.spacing.md,
-    },
-    trafficHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: theme.spacing.md,
-    },
-    trafficTitle: {
-      marginLeft: theme.spacing.sm,
-      fontWeight: theme.fontWeight.semiBold,
-    },
-    trafficItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingVertical: theme.spacing.sm,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.divider,
-    },
-    trafficIndicator: {
-      width: 8,
-      height: 8,
-      borderRadius: 4,
-      marginRight: theme.spacing.sm,
-    },
-    trafficContent: {
-      flex: 1,
     },
   });
 
