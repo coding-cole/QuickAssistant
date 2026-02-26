@@ -27,10 +27,10 @@ interface FeatureCard {
 
 const FEATURE_CARDS: FeatureCard[] = [
   {
-    id: 'assistant',
-    icon: 'hardware-chip-outline',
-    title: 'AI Assistant',
-    description: 'Your personal mobility companion for Lagos',
+    id: 'quickNavigation',
+    icon: 'navigate-outline',
+    title: 'Smart Navigation',
+    description: 'Search destinations and jump into a smart map view',
   },
   {
     id: 'calendar',
@@ -38,6 +38,7 @@ const FEATURE_CARDS: FeatureCard[] = [
     title: 'Calendar Integration',
     description: 'Proactive travel suggestions based on your schedule',
   },
+
   {
     id: 'booking',
     icon: 'flash-outline',
@@ -58,8 +59,6 @@ const HomeMainScreen: React.FC = () => {
   const navigation = useNavigation<HomeNavigationProp>();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const [inputText, setInputText] = useState('');
-
-  const notificationCount = 0;
 
   const handleSendMessage = useCallback(() => {
     if (inputText.trim()) {
@@ -82,10 +81,10 @@ const HomeMainScreen: React.FC = () => {
           navigation.navigate('Chat', { initialQuery: 'Where would you like to go?' });
           break;
         case 'calendar':
-          navigation.navigate('Calendar', {});
+          navigation.getParent()?.navigate('CalendarTab');
           break;
-        case 'assistant':
-          navigation.navigate('Chat', {});
+        case 'quickNavigation':
+          navigation.getParent()?.navigate('Map');
           break;
       }
     },
@@ -93,43 +92,11 @@ const HomeMainScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <View style={styles.logoContainer}>
-              <Ionicons name="sparkles" size={20} color={theme.colors.background} />
-            </View>
-          </View>
-          <View style={styles.headerRight}>
-            <TouchableOpacity
-              style={styles.headerIcon}
-              onPress={() => navigation.navigate('Calendar', {})}
-              accessibilityLabel="Calendar"
-            >
-              <Ionicons name="calendar-outline" size={22} color={theme.colors.textSecondary} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerIcon}
-              onPress={() => navigation.navigate('Notifications')}
-              accessibilityLabel={`Notifications, ${notificationCount} unread`}
-            >
-              <Ionicons name="notifications-outline" size={22} color={theme.colors.textSecondary} />
-              {notificationCount > 0 && (
-                <View style={styles.notificationBadge}>
-                  <Typography variant="caption" style={styles.notificationBadgeText}>
-                    {notificationCount}
-                  </Typography>
-                </View>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
-
         {/* Scrollable Content */}
         <ScrollView
           style={styles.scrollView}
@@ -236,54 +203,6 @@ const createStyles = (theme: Theme) =>
     },
     keyboardView: {
       flex: 1,
-    },
-    header: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.border,
-      backgroundColor: theme.colors.surface,
-    },
-    headerLeft: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    logoContainer: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: theme.colors.primary,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    headerRight: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.sm,
-    },
-    headerIcon: {
-      padding: theme.spacing.xs,
-      position: 'relative',
-    },
-    notificationBadge: {
-      position: 'absolute',
-      top: 0,
-      right: 0,
-      backgroundColor: theme.colors.error,
-      borderRadius: 10,
-      minWidth: 16,
-      height: 16,
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingHorizontal: 4,
-    },
-    notificationBadgeText: {
-      color: theme.colors.background,
-      fontSize: 10,
-      fontWeight: theme.fontWeight.bold,
     },
     scrollView: {
       flex: 1,

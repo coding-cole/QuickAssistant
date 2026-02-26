@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, Theme } from '@theme';
 import { Typography, RideCard, Ride, RideStatus } from '@components/common';
+import { getProviderColor, getProviderLogo } from '@utils/parseTransportOptions';
 
 type FilterOption = 'all' | RideStatus;
 
@@ -19,13 +20,60 @@ const FILTER_TABS: FilterTab[] = [
   { key: 'cancelled', label: 'Cancelled' },
 ];
 
+const DUMMY_RIDES: Ride[] = [
+  {
+    id: 'ride-1',
+    provider: {
+      name: 'Uber',
+      logo: getProviderLogo('Uber', getProviderColor('uber')),
+    },
+    title: 'Lekki Phase 1 → Victoria Island',
+    subtitle: 'UberX • ₦4,200',
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    status: 'completed',
+  },
+  {
+    id: 'ride-2',
+    provider: {
+      name: 'Bolt',
+      logo: getProviderLogo('Bolt', getProviderColor('bolt')),
+    },
+    title: 'Yaba → Ikoyi',
+    subtitle: 'Bolt Basic • ₦3,500',
+    timestamp: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
+    status: 'completed',
+  },
+  {
+    id: 'ride-3',
+    provider: {
+      name: 'inDrive',
+      logo: getProviderLogo('inDrive', getProviderColor('indrive')),
+    },
+    title: 'Maryland → Ikeja',
+    subtitle: 'Standard • ₦2,800',
+    timestamp: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
+    status: 'scheduled',
+  },
+  {
+    id: 'ride-4',
+    provider: {
+      name: 'Uber',
+      logo: getProviderLogo('Uber', getProviderColor('uber')),
+    },
+    title: 'Ajah → Lekki',
+    subtitle: 'UberX • ₦3,900',
+    timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'cancelled',
+  },
+];
+
 const RideHistoryScreen: React.FC = () => {
   const { theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   const [filterStatus, setFilterStatus] = useState<FilterOption>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [rides, setRides] = useState<Ride[]>([]);
+  const [rides, setRides] = useState<Ride[]>(DUMMY_RIDES);
 
   const filteredRides = useMemo(() => {
     if (filterStatus === 'all') {
@@ -107,13 +155,14 @@ const RideHistoryScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Typography variant="h3" style={styles.headerTitle}>
-          Ride History
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      {renderFilterTabs()}
+      <View style={styles.banner}>
+        <Typography variant="bodySmall" style={styles.bannerText}>
+          Full ride history features are coming soon.
         </Typography>
       </View>
-      {renderFilterTabs()}
+
       <FlatList
         data={filteredRides}
         renderItem={renderRide}
@@ -139,15 +188,17 @@ const createStyles = (theme: Theme) =>
       flex: 1,
       backgroundColor: theme.colors.background,
     },
-    header: {
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.md,
-      backgroundColor: theme.colors.surface,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.border,
+    banner: {
+      marginHorizontal: theme.spacing.md,
+      marginTop: theme.spacing.md,
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      backgroundColor: theme.colors.primaryLight + '30',
+      borderWidth: 1,
+      borderColor: theme.colors.primaryLight,
     },
-    headerTitle: {
-      fontWeight: theme.fontWeight.bold,
+    bannerText: {
+      color: theme.colors.text,
     },
     filterContainer: {
       flexDirection: 'row',

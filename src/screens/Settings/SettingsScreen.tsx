@@ -88,10 +88,6 @@ const SettingsScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <Typography variant="h2">Settings</Typography>
-        </View>
-
         <Card style={styles.card}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionIcon}>
@@ -209,9 +205,6 @@ const createStyles = (theme: Theme) =>
     },
     content: {
       padding: theme.spacing.lg,
-    },
-    header: {
-      marginBottom: theme.spacing.lg,
     },
     card: {
       marginBottom: theme.spacing.md,

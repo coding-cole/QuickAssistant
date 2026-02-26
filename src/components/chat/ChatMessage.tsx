@@ -22,11 +22,7 @@ interface ChatMessageProps {
   showTimestamp?: boolean;
 }
 
-export const ChatMessage: React.FC<ChatMessageProps> = ({
-  message,
-  userInitials = 'EO',
-  showTimestamp = false,
-}) => {
+export const ChatMessage: React.FC<ChatMessageProps> = ({ message, showTimestamp = false }) => {
   const { theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -61,7 +57,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         </View>
         {message.isUser && (
           <View style={[styles.avatarContainer, styles.userAvatar]}>
-            <Text style={styles.initialsText}>{userInitials}</Text>
+            <Ionicons name="person-circle-outline" size={20} color={styles.userIcon.color} />
           </View>
         )}
       </View>
@@ -112,9 +108,7 @@ const createStyles = (theme: Theme) =>
       backgroundColor: '#F5E6D3', // Beige/cream background for user
       borderColor: '#E8D4C0',
     },
-    initialsText: {
-      fontSize: 12,
-      fontWeight: '600',
+    userIcon: {
       color: '#8B7355',
     },
     bubble: {

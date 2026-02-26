@@ -4,7 +4,6 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { ChatParams } from '@screens/Chat/ChatScreen';
 import { PriceComparisonParams } from '@screens/Rides/PriceComparisonScreen';
-import { CalendarParams } from '@screens/Calendar/CalendarScreen';
 
 // Home Stack (screens accessible from Home tab)
 export type HomeStackParamList = {
@@ -12,12 +11,13 @@ export type HomeStackParamList = {
   Chat: ChatParams;
   PriceComparison: PriceComparisonParams;
   Notifications: undefined;
-  Calendar: CalendarParams;
 };
 
 // Main Tab Navigator
 export type MainTabParamList = {
   Home: NavigatorScreenParams<HomeStackParamList>;
+  CalendarTab: undefined;
+  Map: undefined;
   RideHistory: undefined;
   Settings: undefined;
 };

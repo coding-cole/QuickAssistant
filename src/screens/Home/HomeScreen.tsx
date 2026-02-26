@@ -8,7 +8,6 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useTheme, Theme } from '@theme';
 import { Typography } from '@components/common';
 import { ChatMessage, ChatInput, Message } from '@components/chat';
@@ -30,22 +29,11 @@ const AI_RESPONSES = [
 ];
 
 const HomeScreen: React.FC = () => {
-  const { theme, toggleTheme, themeMode } = useTheme();
+  const { theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE]);
   const [isTyping, setIsTyping] = useState(false);
   const flatListRef = useRef<FlatList>(null);
-
-  const getThemeModeIcon = (): keyof typeof Ionicons.glyphMap => {
-    switch (themeMode) {
-      case 'light':
-        return 'sunny-outline';
-      case 'dark':
-        return 'moon-outline';
-      default:
-        return 'phone-portrait-outline';
-    }
-  };
 
   const simulateAIResponse = useCallback(() => {
     setIsTyping(true);
@@ -86,28 +74,7 @@ const HomeScreen: React.FC = () => {
   const keyExtractor = useCallback((item: Message) => item.id, []);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={styles.aiAvatar}>
-            <Ionicons name="sparkles" size={20} color={theme.colors.background} />
-          </View>
-          <View>
-            <Typography variant="h4">QuickAssistant</Typography>
-            <Typography variant="caption" color="secondary">
-              {isTyping ? 'Typing...' : 'Online'}
-            </Typography>
-          </View>
-        </View>
-        <TouchableOpacity
-          style={styles.themeButton}
-          onPress={toggleTheme}
-          accessibilityLabel={`Current theme: ${themeMode}. Tap to change.`}
-        >
-          <Ionicons name={getThemeModeIcon()} size={22} color={theme.colors.primary} />
-        </TouchableOpacity>
-      </View>
-
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <KeyboardAvoidingView
         style={styles.chatContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -143,34 +110,6 @@ const createStyles = (theme: Theme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
-    },
-    header: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.border,
-      backgroundColor: theme.colors.background,
-    },
-    headerLeft: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.sm,
-    },
-    aiAvatar: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: theme.colors.primary,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    themeButton: {
-      padding: theme.spacing.sm,
-      borderRadius: theme.borderRadius.round,
-      backgroundColor: theme.colors.surface,
     },
     chatContainer: {
       flex: 1,
