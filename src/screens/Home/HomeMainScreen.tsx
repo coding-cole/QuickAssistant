@@ -1,14 +1,7 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useKeyboard } from '@hooks';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -59,6 +52,8 @@ const HomeMainScreen: React.FC = () => {
   const navigation = useNavigation<HomeNavigationProp>();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const [inputText, setInputText] = useState('');
+  const { keyboardHeight } = useKeyboard();
+  const insets = useSafeAreaInsets();
 
   const handleSendMessage = useCallback(() => {
     if (inputText.trim()) {
@@ -92,11 +87,8 @@ const HomeMainScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <KeyboardAvoidingView
-        style={styles.keyboardView}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <View style={styles.inner}>
         {/* Scrollable Content */}
         <ScrollView
           style={styles.scrollView}
@@ -165,7 +157,14 @@ const HomeMainScreen: React.FC = () => {
         </ScrollView>
 
         {/* Bottom Chat Input */}
-        <View style={styles.chatInputContainer}>
+        <View
+          style={[
+            styles.chatInputContainer,
+            {
+              paddingBottom: keyboardHeight > 0 ? keyboardHeight - insets.bottom : insets.bottom,
+            },
+          ]}
+        >
           <View style={styles.chatInputWrapper}>
             <TextInput
               style={styles.textInput}
@@ -190,7 +189,7 @@ const HomeMainScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -201,7 +200,7 @@ const createStyles = (theme: Theme) =>
       flex: 1,
       backgroundColor: theme.colors.background,
     },
-    keyboardView: {
+    inner: {
       flex: 1,
     },
     scrollView: {
@@ -266,8 +265,6 @@ const createStyles = (theme: Theme) =>
     chatInputContainer: {
       padding: theme.spacing.md,
       backgroundColor: theme.colors.surface,
-      borderTopWidth: 1,
-      borderTopColor: theme.colors.border,
     },
     chatInputWrapper: {
       flexDirection: 'row',
