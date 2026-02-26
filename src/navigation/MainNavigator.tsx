@@ -10,7 +10,6 @@ import { HomeNavigator } from './HomeNavigator';
 // Screens
 import RideHistoryScreen from '@screens/Rides/RideHistoryScreen';
 import SettingsScreen from '@screens/Settings/SettingsScreen';
-import MapScreen from '@screens/Map/MapScreen';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -34,9 +33,6 @@ export const MainNavigator: React.FC = () => {
             case 'Home':
               iconName = focused ? 'home' : 'home-outline';
               break;
-            case 'Map':
-              iconName = focused ? 'map' : 'map-outline';
-              break;
             case 'RideHistory':
               iconName = focused ? 'car' : 'car-outline';
               break;
@@ -52,7 +48,6 @@ export const MainNavigator: React.FC = () => {
       })}
     >
       <Tab.Screen name="Home" component={HomeNavigator} options={{ tabBarLabel: 'Home' }} />
-      <Tab.Screen name="Map" component={MapScreen} options={{ tabBarLabel: 'Map' }} />
       <Tab.Screen
         name="RideHistory"
         component={RideHistoryScreen}

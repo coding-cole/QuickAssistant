@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, TextInput, Alert, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  Alert,
+  TouchableOpacity,
+  Switch,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, Theme } from '@theme';
@@ -24,6 +32,7 @@ const SettingsScreen: React.FC = () => {
   const [baseUrl, setBaseUrl] = useState('');
   const [savedUrl, setSavedUrl] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [useMock, setUseMock] = useState(false);
 
   useEffect(() => {
     storageService.getEstimationBaseUrl().then((url) => {
@@ -31,6 +40,9 @@ const SettingsScreen: React.FC = () => {
         setSavedUrl(url);
         setBaseUrl(url);
       }
+    });
+    storageService.getEstimationUseMock().then((enabled) => {
+      setUseMock(enabled);
     });
   }, []);
 
@@ -64,6 +76,11 @@ const SettingsScreen: React.FC = () => {
         },
       },
     ]);
+  };
+
+  const handleToggleMock = async (value: boolean) => {
+    setUseMock(value);
+    await storageService.setEstimationUseMock(value);
   };
 
   const activeUrl = savedUrl || TRIP_ESTIMATION_BASE_URL_DEFAULT;
@@ -159,6 +176,21 @@ const SettingsScreen: React.FC = () => {
               </Typography>
             </TouchableOpacity>
           </View>
+
+          <View style={styles.mockRow}>
+            <View style={styles.mockTextContainer}>
+              <Typography variant="body">Use mock estimations</Typography>
+              <Typography variant="caption" color="secondary">
+                Returns a mocked response after 5 seconds
+              </Typography>
+            </View>
+            <Switch
+              value={useMock}
+              onValueChange={handleToggleMock}
+              trackColor={{ false: theme.colors.border, true: theme.colors.primary + '55' }}
+              thumbColor={useMock ? theme.colors.primary : theme.colors.textSecondary}
+            />
+          </View>
         </Card>
 
         <Typography variant="caption" color="secondary" align="center" style={styles.version}>
@@ -241,6 +273,19 @@ const createStyles = (theme: Theme) =>
     },
     buttonDisabled: {
       opacity: 0.6,
+    },
+    mockRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: theme.spacing.lg,
+      paddingTop: theme.spacing.md,
+      borderTopWidth: 1,
+      borderTopColor: theme.colors.border,
+    },
+    mockTextContainer: {
+      flex: 1,
+      marginRight: theme.spacing.sm,
     },
     version: {
       marginTop: theme.spacing.lg,

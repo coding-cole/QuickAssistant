@@ -49,7 +49,7 @@ const NotificationsScreen: React.FC = () => {
           // Navigate to scheduled ride details
           break;
         case 'alert':
-          // Navigate to map or traffic details
+          // Navigate to traffic details
           break;
       }
     },

@@ -18,7 +18,6 @@ export type HomeStackParamList = {
 // Main Tab Navigator
 export type MainTabParamList = {
   Home: NavigatorScreenParams<HomeStackParamList>;
-  Map: undefined;
   RideHistory: undefined;
   Settings: undefined;
 };

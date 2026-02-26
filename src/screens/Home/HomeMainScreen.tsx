@@ -33,12 +33,6 @@ const FEATURE_CARDS: FeatureCard[] = [
     description: 'Your personal mobility companion for Lagos',
   },
   {
-    id: 'navigation',
-    icon: 'navigate-outline',
-    title: 'Smart Navigation',
-    description: 'Get the best routes across Lagos with real-time traffic updates',
-  },
-  {
     id: 'calendar',
     icon: 'calendar-outline',
     title: 'Calendar Integration',
@@ -84,7 +78,6 @@ const HomeMainScreen: React.FC = () => {
   const handleFeatureCardPress = useCallback(
     (featureId: string) => {
       switch (featureId) {
-        case 'navigation':
         case 'booking':
           navigation.navigate('Chat', { initialQuery: 'Where would you like to go?' });
           break;

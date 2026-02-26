@@ -45,6 +45,21 @@ const TRIP_HEADERS: Record<string, string> = {
     'djkD0xMOSgjpDgSmB1ISDyC6ySUS1eTPkUm9/GjPSZs=-1-bd7bf577-7a72-4b85-b8ad-cfbfcfd1800b',
 };
 
+const MOCK_DELAY_MS = 5000;
+
+const mockTripResponse: TripEstimationResponse = {
+  code: 200,
+  httpStatus: 200,
+  message:
+    'Pickup location: Lekki Phase 1. Dropoff location: Victoria Island. ' +
+    'Bolt Basic price 3500, ETA 6 minutes, seats 4. ' +
+    'Uber UberX price 4200, ETA 5 minutes, seats 4. ' +
+    'inDrive Standard price 3000, ETA 8 minutes, seats 4. ' +
+    'These are estimated fares and times based on current conditions.',
+};
+
+const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
 /**
  * Dedicated base query for the trip estimation API.
  * Uses no baseUrl (full URL is built at call time) and applies its own headers
@@ -63,6 +78,12 @@ export const tripEstimationApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     sendTrip: builder.mutation<TripEstimationResponse, TripEstimationRequestPayload>({
       queryFn: async ({ messageToAI, origin = '', destination = '' }, api) => {
+        const useMock = await storageService.getEstimationUseMock();
+        if (useMock) {
+          await delay(MOCK_DELAY_MS);
+          return { data: mockTripResponse };
+        }
+
         const savedBaseUrl = await storageService.getEstimationBaseUrl();
         const baseUrl = savedBaseUrl?.trim() || TRIP_ESTIMATION_BASE_URL_DEFAULT;
         const fullUrl = `${baseUrl}${TRIP_ESTIMATION_PATH}`;

@@ -9,6 +9,7 @@ export const ASYNC_STORAGE_KEYS = {
   THEME: '@QuickAssistant:theme',
   CHAT_HISTORY: '@QuickAssistant:chatHistory',
   ESTIMATION_BASE_URL: '@QuickAssistant:estimationBaseUrl',
+  ESTIMATION_USE_MOCK: '@QuickAssistant:estimationUseMock',
 } as const;
 
 export const VALIDATION = {

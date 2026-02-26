@@ -20,6 +20,27 @@ export const storageService = {
     }
   },
 
+  getEstimationUseMock: async (): Promise<boolean> => {
+    try {
+      const value = await AsyncStorage.getItem(ASYNC_STORAGE_KEYS.ESTIMATION_USE_MOCK);
+      return value === 'true';
+    } catch (error) {
+      console.error('Error getting estimation mock flag:', error);
+      return false;
+    }
+  },
+
+  setEstimationUseMock: async (enabled: boolean): Promise<void> => {
+    try {
+      await AsyncStorage.setItem(
+        ASYNC_STORAGE_KEYS.ESTIMATION_USE_MOCK,
+        enabled ? 'true' : 'false'
+      );
+    } catch (error) {
+      console.error('Error setting estimation mock flag:', error);
+    }
+  },
+
   // Generic methods
   setItem: async <T>(key: string, value: T): Promise<void> => {
     try {
